@@ -1,19 +1,36 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db
+from app.catalog.service import CatalogService
 
 
-router = APIRouter(prefix="/produtos", tags=["Catálogo"])
+router = APIRouter(
+    prefix="/produtos",
+    tags=["Catálogo"]
+)
 
 
-@router.get("/", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def list_products():
-    return {"detail": "Endpoint em desenvolvimento"}
+@router.get("/")
+async def list_products(
+    db: AsyncSession = Depends(get_db)
+):
+    service = CatalogService(db)
+    return await service.get_products()
 
 
-@router.get("/categorias", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def list_categories():
-    return {"detail": "Endpoint em desenvolvimento"}
+@router.get("/categorias")
+async def list_categories(
+    db: AsyncSession = Depends(get_db)
+):
+    service = CatalogService(db)
+    return await service.get_categories()
 
 
-@router.get("/{product_id}", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def get_product(product_id: int):
-    return {"detail": "Endpoint em desenvolvimento"}
+@router.get("/{product_id}")
+async def get_product(
+    product_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    service = CatalogService(db)
+    return await service.get_product_by_id(product_id)
