@@ -7,6 +7,11 @@ from app.catalog.router import router as catalog_router
 from app.orders.router import router as orders_router
 from app.users.router import auth_router, users_router
 
+# Importar todos os models para registrar no SQLAlchemy
+import app.users.models  # noqa: F401
+import app.catalog.models  # noqa: F401
+import app.orders.models  # noqa: F401
+
 
 logger = logging.getLogger("caixa_magica")
 logging.basicConfig(level=logging.INFO)
