@@ -26,10 +26,10 @@ class Order(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+        ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True
     )
     address_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("addresses.id", ondelete="SET NULL")
+        ForeignKey("addresses.id", ondelete="SET NULL"), index=True
     )
     delivery_type: Mapped[str] = mapped_column(String(20), nullable=False)
     payment_type: Mapped[str] = mapped_column(String(30), nullable=False)
@@ -41,7 +41,7 @@ class Order(Base):
     origin: Mapped[str] = mapped_column(String(20), default="site", nullable=False)
     expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     created_by: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("users.id", ondelete="SET NULL")
+        ForeignKey("users.id", ondelete="SET NULL"), index=True
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -79,10 +79,10 @@ class OrderItem(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     order_id: Mapped[int] = mapped_column(
-        ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("orders.id", ondelete="CASCADE"), nullable=False, index=True
     )
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("products.id", ondelete="RESTRICT"), nullable=False
+        ForeignKey("products.id", ondelete="RESTRICT"), nullable=False, index=True
     )
     days: Mapped[int] = mapped_column(Integer, nullable=False)
     price_snapshot: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
@@ -101,10 +101,15 @@ class OrderItem(Base):
 
 class Reservation(Base):
     __tablename__ = "reservations"
+    __table_args__ = (
+        CheckConstraint(
+            "period_end > period_start", name="ck_reservations_period"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("products.id", ondelete="RESTRICT"), nullable=False
+        ForeignKey("products.id", ondelete="RESTRICT"), nullable=False, index=True
     )
     order_item_id: Mapped[int] = mapped_column(
         ForeignKey("order_items.id", ondelete="CASCADE"),
@@ -129,7 +134,7 @@ class OrderStatusHistory(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     order_id: Mapped[int] = mapped_column(
-        ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("orders.id", ondelete="CASCADE"), nullable=False, index=True
     )
     previous_status: Mapped[Optional[str]] = mapped_column(String(40))
     new_status: Mapped[str] = mapped_column(String(40), nullable=False)

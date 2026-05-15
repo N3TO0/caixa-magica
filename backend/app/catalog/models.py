@@ -62,10 +62,10 @@ class ProductCategory(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("products.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
     category_id: Mapped[int] = mapped_column(
-        ForeignKey("categories.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("categories.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
 
@@ -118,7 +118,7 @@ class ProductPricing(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("products.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
     days: Mapped[int] = mapped_column(Integer, nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
@@ -132,7 +132,7 @@ class ProductImage(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("products.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
     url: Mapped[str] = mapped_column(String(500), nullable=False)
     display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
