@@ -31,7 +31,7 @@ class CatalogService:
         result = await self.db.execute(
             select(Product)
             .options(
-                joinedload(Product.pricings),
+                joinedload(Product.pricing),
                 joinedload(Product.images),
                 joinedload(Product.categories)
             )
