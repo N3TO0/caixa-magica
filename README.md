@@ -246,9 +246,9 @@ pendente → confirmado → em_uso → devolvido → finalizado
 
 | Domínio | Responsável |
 |---|---|
-| Backend — Catálogo | [Fernanda] |
+| Backend — Catálogo | Fernanda |
 | Backend — Pedido e Reserva | Felipe |
-| Backend — Cliente, Auth e Admin | [Neto] |
+| Backend — Cliente, Auth e Admin | Neto |
 | Frontend — Catálogo e produto | [Nome 4] |
 | Frontend — Checkout e área do cliente | [Nome 5] |
 
