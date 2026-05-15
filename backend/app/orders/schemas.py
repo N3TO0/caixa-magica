@@ -1,27 +1,26 @@
 from datetime import date, datetime
 from decimal import Decimal
-from typing import List, Optional
+from typing import List, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class OrderItemCreate(BaseModel):
     product_id: int
-    days: int
+    days: Literal[7, 15, 30]
     start_date: date
     end_date: date
 
 
 class OrderCreate(BaseModel):
-    user_id: int
     address_id: Optional[int] = None
-    delivery_type: str
-    payment_type: str
+    delivery_type: Literal["delivery", "pickup"]
+    payment_type: Literal["on_delivery_cash", "on_delivery_card", "pending"]
     notes: Optional[str] = None
     baby_name: Optional[str] = None
     baby_birthdate: Optional[date] = None
     origin: str = "site"
-    items: List[OrderItemCreate]
+    items: List[OrderItemCreate] = Field(min_length=1)
 
 
 class OrderItemOut(BaseModel):
@@ -45,7 +44,8 @@ class OrderOut(BaseModel):
     total_amount: Decimal
     origin: str
     created_at: datetime
+    items: List[OrderItemOut] = []
 
 
 class OrderDetailOut(OrderOut):
-    items: List[OrderItemOut] = []
+    pass
