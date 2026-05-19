@@ -1,17 +1,17 @@
 import { useParams } from "react-router-dom";
-import { produtos } from "../data/Produtos";
-import { useState, useContext } from "react";
-import { CartContext } from "../context/CartContext";
+import produtos from "../data/Produtos.json";
+import { useContext, useState } from "react";
+import { useCart } from "../context/CartContext";
 import { FavoritesContext } from "../context/FavoritesContext";
-import "../styles/produto.css";
+import "../styles/Produto.css";
 
 function ProdutoDetalhe() {
   const { id } = useParams();
   const produto = produtos.find(p => p.id === Number(id));
 
-  const [plano, setPlano] = useState("diaria");
+  const [plano, setPlano] = useState("1dia");
 
-  const { addToCart } = useContext(CartContext);
+  const { addToCart } = useCart();
   const { toggleFavorite } = useContext(FavoritesContext);
 
   if (!produto) return <p>Produto não encontrado</p>;
@@ -22,8 +22,7 @@ function ProdutoDetalhe() {
       <div className="produto-topo">
 
         <div className="galeria">
-          <img src={produto.imagens[0]} alt={produto.nome} />
-          <video controls src={produto.video}></video>
+          <img src={produto.imagem} alt={produto.nome} />
         </div>
 
         <div className="info">
@@ -31,40 +30,35 @@ function ProdutoDetalhe() {
           <p>{produto.descricao}</p>
 
           <div className="avaliacao">
-            ⭐ {produto.avaliacoes.reduce((a,b)=>a+b.nota,0)/produto.avaliacoes.length}
+            Categoria: {produto.categoria}
           </div>
 
           <div className="planos">
-            {["diaria","sete","quinze","trinta"].map(p => (
+            {[
+              { key: "1dia", label: "1 dia" },
+              { key: "7dias", label: "7 dias" },
+              { key: "15dias", label: "15 dias" },
+              { key: "30dias", label: "30 dias" },
+            ].map(p => (
               <button 
-                key={p}
-                className={plano === p ? "ativo" : ""}
-                onClick={() => setPlano(p)}
+                key={p.key}
+                className={plano === p.key ? "ativo" : ""}
+                onClick={() => setPlano(p.key)}
               >
-                {p === "diaria" && "1 dia"}
-                {p === "sete" && "7 dias"}
-                {p === "quinze" && "15 dias"}
-                {p === "trinta" && "30 dias"}
+                {p.label}
               </button>
             ))}
           </div>
 
-          <h2>R$ {produto.planos[plano]}</h2>
+          <h2>R$ {produto.precos[plano]}</h2>
 
           <div className="acoes">
-            <button onClick={() => addToCart(produto, plano)}>🛒 Carrinho</button>
-            <button onClick={() => toggleFavorite(produto)}>❤️ Favorito</button>
-            <button>📄 Alugar</button>
+            <button onClick={() => addToCart({ ...produto, prazo: plano, preco: produto.precos[plano] })}>Carrinho</button>
+            <button onClick={() => toggleFavorite(produto)}>Favorito</button>
+            <button>Alugar</button>
           </div>
 
         </div>
-      </div>
-
-      <div className="avaliacoes">
-        <h3>Avaliações</h3>
-        {produto.avaliacoes.map((a,i)=>(
-          <p key={i}>⭐{a.nota} - {a.comentario}</p>
-        ))}
       </div>
 
     </div>

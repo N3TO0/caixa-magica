@@ -16,7 +16,7 @@ function Footer() {
 
         <div className="footer-column">
           <h4>ALUGAR</h4>
-          <Link to="/comoalugar">Como alugar</Link>
+          <Link to="/como-alugar">Como alugar</Link>
           <Link to="/duvidas">Perguntas frequentes</Link>
           <Link to="/contrato">Contrato</Link>
         </div>

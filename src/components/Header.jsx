@@ -23,7 +23,7 @@ export default function Header() {
 function pesquisar(e) {
   e.preventDefault();
   if (!busca.trim()) return;
-  navigate(`/pesquisa/${busca}`);
+  navigate(`/pesquisa/${encodeURIComponent(busca.trim())}`);
 } 
 
   return (
@@ -100,7 +100,7 @@ function pesquisar(e) {
       {/* 🔹 MENU */}
       <nav className={`header-menu ${menuOpen ? "open" : ""}`}>
         <Link to="/quem-somos">QUEM SOMOS</Link>
-        <Link to="/comoalugar">COMO ALUGAR</Link>
+        <Link to="/como-alugar">COMO ALUGAR</Link>
         <Link to="/produtos">PRODUTOS</Link>
         <Link to="/duvidas">DÚVIDAS</Link>
         <Link to="/contrato">CONTRATO</Link>
