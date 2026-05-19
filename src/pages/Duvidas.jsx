@@ -1,24 +1,12 @@
-import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
+import { useState } from "react";
 import "./Duvidas.css";
 import Hero from "../components/Hero/Hero";
-
-
- const socket = io("http://localhost:3001");
 
 export default function PerguntasFrequentes() {
 
   const [novaPergunta, setNovaPergunta] = useState("");
   const [listaPerguntas, setListaPerguntas] = useState([]);
   const [aberta, setAberta] = useState(null);
-
-  useEffect(() => {
-  socket.on("nova-pergunta", (data) => {
-    setListaPerguntas((prev) => [...prev, data]);
-  });
-
-  return () => socket.off("nova-pergunta");
-}, [socket]);
 
 const enviarPergunta = () => {
   if (!novaPergunta.trim()) {
@@ -31,10 +19,10 @@ const enviarPergunta = () => {
     return;
   }
 
-  socket.emit("nova-pergunta", {
+  setListaPerguntas((prev) => [...prev, {
     texto: novaPergunta.trim(),
     data: new Date().toLocaleString()
-  });
+  }]);
 
   setNovaPergunta("");
 };
@@ -177,7 +165,7 @@ const enviarPergunta = () => {
 
   <div className="lista-duvidas">
     {listaPerguntas.map((p, index) => (
-      <p key={index}>📝 {p.texto}</p>
+      <p key={index}>{p.texto}</p>
     ))}
   </div>
 </section>
