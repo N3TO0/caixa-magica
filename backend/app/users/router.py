@@ -1,13 +1,28 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db  # Ajuste o import se o arquivo de sessão tiver outro nome
+from app.users.schemas import UserCreate, UserOut
+from app.users.service import UserService
 
 
 auth_router = APIRouter(prefix="/auth", tags=["Usuários"])
 users_router = APIRouter(prefix="/usuarios", tags=["Usuários"])
 
 
-@auth_router.post("/register", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def register():
-    return {"detail": "Endpoint em desenvolvimento"}
+@auth_router.post(
+    "/register", 
+    response_model=UserOut, 
+    status_code=status.HTTP_201_CREATED
+)
+async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
+    # Instancia o serviço passando a sessão do banco de dados
+    user_service = UserService(db)
+    
+    # Executa a lógica de cadastro e guarda o usuário retornado
+    new_user = await user_service.register(data)
+    
+    return new_user
 
 
 @auth_router.post("/login", status_code=status.HTTP_501_NOT_IMPLEMENTED)
