@@ -45,7 +45,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 # Define onde o FastAPI deve buscar o token em rotas protegidas
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
     
 async def get_current_user(
     token: str = Depends(oauth2_scheme)
