@@ -4,11 +4,12 @@ from decimal import Decimal
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.catalog.models import Product, ProductPricing
 from app.orders.models import Order, OrderItem, OrderStatusHistory, Reservation
 from app.orders.schemas import OrderCreate
+from app.users.models import User
 
 
 class OrderService:
@@ -116,13 +117,33 @@ class OrderService:
             await self.db.rollback()
             raise
 
-    async def get_order_by_id(self, order_id: int):
+    async def get_order_by_id(
+        self, order_id: int, requesting_user_id: int
+    ) -> Order:
         result = await self.db.execute(
             select(Order)
-            .options(selectinload(Order.items))
+            .options(
+                selectinload(Order.items).joinedload(OrderItem.product),
+                selectinload(Order.status_history),
+            )
             .where(Order.id == order_id)
         )
-        return result.scalar_one_or_none()
+        order = result.scalar_one_or_none()
+        if order is None or order.deleted_at is not None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Pedido não encontrado",
+            )
+
+        if order.user_id != requesting_user_id:
+            user = await self.db.get(User, requesting_user_id)
+            if user is None or user.role != "admin":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Acesso negado",
+                )
+
+        return order
 
     async def update_status(
         self, order_id: int, new_status: str, changed_by: int | None = None
