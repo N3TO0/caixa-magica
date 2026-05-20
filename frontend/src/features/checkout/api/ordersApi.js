@@ -3,7 +3,7 @@ import { USE_MOCKS } from "@/shared/services/apiConfig";
 import { createMockOrder, getMockOrderById } from "./ordersMock";
 
 export function createOrder(payload) {
-  if (USE_MOCKS) return createMockOrder(payload);
+  if (USE_MOCKS.orders) return createMockOrder(payload);
 
   return apiClient("/pedidos/", {
     method: "POST",
@@ -12,7 +12,7 @@ export function createOrder(payload) {
 }
 
 export function getOrderById(orderId) {
-  if (USE_MOCKS) return getMockOrderById(orderId);
+  if (USE_MOCKS.orders) return getMockOrderById(orderId);
 
   return apiClient(`/pedidos/${orderId}`);
 }

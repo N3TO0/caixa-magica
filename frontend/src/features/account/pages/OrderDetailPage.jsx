@@ -38,7 +38,7 @@ export default function OrderDetailPage() {
 
   return (
     <>
-      <Hero title={`Pedido #${id}`} subtitle="Detalhes mockados preparados para o endpoint de pedidos." />
+      <Hero title={`Pedido #${id}`} subtitle="Detalhes do seu pedido." />
       <main className="account-page">
         {loading && <LoadingState message="Carregando pedido..." />}
         {error && <ErrorMessage message={error.message} />}

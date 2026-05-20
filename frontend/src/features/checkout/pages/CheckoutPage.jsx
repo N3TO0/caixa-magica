@@ -106,7 +106,7 @@ export default function CheckoutPage() {
 
           {form.delivery_type === "delivery" && (
             <label>
-              Endereço mockado
+              Endereço de entrega
               <input value={form.address_id} onChange={(event) => updateForm("address_id", event.target.value)} />
             </label>
           )}

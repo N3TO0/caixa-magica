@@ -3,7 +3,7 @@ import { USE_MOCKS } from "@/shared/services/apiConfig";
 import { getMeMock, loginMock, registerMock } from "./authMock";
 
 export function login(payload) {
-  if (USE_MOCKS) return loginMock(payload);
+  if (USE_MOCKS.auth) return loginMock(payload);
 
   return apiClient("/auth/login", {
     method: "POST",
@@ -12,7 +12,7 @@ export function login(payload) {
 }
 
 export function register(payload) {
-  if (USE_MOCKS) return registerMock(payload);
+  if (USE_MOCKS.auth) return registerMock(payload);
 
   return apiClient("/auth/register", {
     method: "POST",
@@ -21,7 +21,7 @@ export function register(payload) {
 }
 
 export function getMe() {
-  if (USE_MOCKS) return getMeMock();
+  if (USE_MOCKS.users) return getMeMock();
 
   return apiClient("/usuarios/me");
 }
