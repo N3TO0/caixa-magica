@@ -1,13 +1,13 @@
 import { Route, Routes } from "react-router-dom";
-import LoginPage from "../features/auth/pages/LoginPage";
-import HomePage from "../features/home/pages/HomePage";
-import AboutPage from "../features/institutional/pages/AboutPage";
-import ContractPage from "../features/institutional/pages/ContractPage";
-import FAQPage from "../features/institutional/pages/FAQPage";
-import HowToRentPage from "../features/institutional/pages/HowToRentPage";
-import ProductDetailPage from "../features/products/pages/ProductDetailPage";
-import ProductsPage from "../features/products/pages/ProductsPage";
-import SearchPage from "../features/search/pages/SearchPage";
+import LoginPage from "@/features/auth/pages/LoginPage";
+import HomePage from "@/features/home/pages/HomePage";
+import AboutPage from "@/features/institutional/pages/AboutPage";
+import ContractPage from "@/features/institutional/pages/ContractPage";
+import FAQPage from "@/features/institutional/pages/FAQPage";
+import HowToRentPage from "@/features/institutional/pages/HowToRentPage";
+import ProductDetailPage from "@/features/products/pages/ProductDetailPage";
+import ProductsPage from "@/features/products/pages/ProductsPage";
+import SearchPage from "@/features/search/pages/SearchPage";
 
 export default function AppRouter() {
   return (

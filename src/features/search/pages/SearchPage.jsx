@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import Hero from "../../../shared/components/Hero";
+import Hero from "@/shared/components/Hero";
 import "../styles/SearchPage.css";
 
 export default function SearchPage() {

@@ -1,4 +1,4 @@
-import Hero from "../../../shared/components/Hero";
+import Hero from "@/shared/components/Hero";
 import "../styles/ContractPage.css";
 
 export default function ContractPage() {

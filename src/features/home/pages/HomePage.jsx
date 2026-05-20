@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import banner from "../../../assets/images/banner-home.png";
-import alugar from "../../../assets/images/comoalugar-banner.png";
+import banner from "@/assets/images/banner-home.png";
+import alugar from "@/assets/images/comoalugar-banner.png";
 import "../styles/HomePage.css";
 import { 
   FaPuzzlePiece, 

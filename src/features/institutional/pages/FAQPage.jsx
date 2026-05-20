@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Hero from "../../../shared/components/Hero";
+import Hero from "@/shared/components/Hero";
 import "../styles/FAQPage.css";
 
 export default function FAQPage() {

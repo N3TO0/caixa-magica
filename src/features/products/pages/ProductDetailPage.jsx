@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-import Hero from "../../../shared/components/Hero";
-import { useCart } from "../../cart/hooks/useCart";
-import { useFavorites } from "../../favorites/hooks/useFavorites";
+import Hero from "@/shared/components/Hero";
+import { useCart } from "@/features/cart/hooks/useCart";
+import { useFavorites } from "@/features/favorites/hooks/useFavorites";
 import { getProductById } from "../services/productsService";
 import "../styles/ProductDetailPage.css";
 

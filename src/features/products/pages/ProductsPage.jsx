@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Hero from "../../../shared/components/Hero";
+import Hero from "@/shared/components/Hero";
 import ProductCard from "../components/ProductCard";
 import { getProducts } from "../services/productsService";
 import { filterProducts } from "../utils/productFilters";
