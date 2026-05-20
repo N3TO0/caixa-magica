@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
-import Hero from "../shared/components/Hero";
-import "./Pesquisa.css";
+import Hero from "../../../shared/components/Hero";
+import "../styles/SearchPage.css";
 
-export default function Pesquisa() {
+export default function SearchPage() {
   const { termo } = useParams();
 
   return (

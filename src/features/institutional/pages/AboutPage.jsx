@@ -1,7 +1,7 @@
-import "./QuemSomos.css";
-import Hero from "../shared/components/Hero";
+import Hero from "../../../shared/components/Hero";
+import "../styles/AboutPage.css";
 
-export default function QuemSomos() {
+export default function AboutPage() {
   return (
        <>
        {/* HERO */}

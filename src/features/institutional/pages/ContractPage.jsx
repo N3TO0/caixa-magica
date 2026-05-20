@@ -1,7 +1,7 @@
-import "./Contrato.css";
-import Hero from "../shared/components/Hero";
+import Hero from "../../../shared/components/Hero";
+import "../styles/ContractPage.css";
 
-export default function Contrato() {
+export default function ContractPage() {
   return (
     <>
            {/* HERO */}

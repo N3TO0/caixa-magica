@@ -1,8 +1,8 @@
 import { useState } from "react";
-import "./Duvidas.css";
-import Hero from "../shared/components/Hero";
+import Hero from "../../../shared/components/Hero";
+import "../styles/FAQPage.css";
 
-export default function PerguntasFrequentes() {
+export default function FAQPage() {
 
   const [novaPergunta, setNovaPergunta] = useState("");
   const [listaPerguntas, setListaPerguntas] = useState([]);

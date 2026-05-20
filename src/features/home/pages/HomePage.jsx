@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import banner from "../assets/images/banner-home.png";
-import alugar from "../assets/images/comoalugar-banner.png";
-import "./Home.css";
+import banner from "../../../assets/images/banner-home.png";
+import alugar from "../../../assets/images/comoalugar-banner.png";
+import "../styles/HomePage.css";
 import { 
   FaPuzzlePiece, 
   FaTruck, 
@@ -10,7 +10,7 @@ import {
   FaPiggyBank 
 } from "react-icons/fa";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <main className="home">
       <section className="home-hero">

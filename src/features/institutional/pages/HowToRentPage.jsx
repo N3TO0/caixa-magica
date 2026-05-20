@@ -1,5 +1,5 @@
-import "./ComoAlugar.css";
-import Hero from "../shared/components/Hero";
+import Hero from "../../../shared/components/Hero";
+import "../styles/HowToRentPage.css";
 import {
   FaUserPlus,
   FaShoppingCart,
@@ -10,7 +10,7 @@ import {
   FaSyncAlt
 } from "react-icons/fa";
 
-export default function ComoAlugar() {
+export default function HowToRentPage() {
   const etapas = [
     {
       titulo: "FAÇA O SEU CADASTRO NO SITE",
