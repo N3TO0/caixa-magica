@@ -32,9 +32,43 @@ async def check_availability(product_id: int):
     return {"detail": "Endpoint em desenvolvimento"}
 
 
-@router.get("/{order_id}", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def get_order(order_id: int):
-    return {"detail": "Endpoint em desenvolvimento"}
+@router.get("/{order_id}")
+async def get_order(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    service = OrderService(db)
+    order = await service.get_order_by_id(order_id, requesting_user_id=1)
+
+    return success_response(
+        data={
+            "id": order.id,
+            "status": order.status,
+            "delivery_type": order.delivery_type,
+            "payment_type": order.payment_type,
+            "total_amount": float(order.total_amount),
+            "origin": order.origin,
+            "created_at": order.created_at.isoformat(),
+            "items": [
+                {
+                    "id": item.id,
+                    "product_name": item.product.name,
+                    "days": item.days,
+                    "price": float(item.price_snapshot),
+                    "start_date": item.start_date.isoformat(),
+                    "end_date": item.end_date.isoformat(),
+                }
+                for item in order.items
+            ],
+            "status_history": [
+                {
+                    "status": h.new_status,
+                    "changed_at": h.created_at.isoformat(),
+                }
+                for h in order.status_history
+            ],
+        }
+    )
 
 
 @router.patch("/{order_id}/status", status_code=status.HTTP_501_NOT_IMPLEMENTED)
