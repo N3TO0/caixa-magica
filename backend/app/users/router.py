@@ -1,5 +1,9 @@
 from fastapi import APIRouter, status, Depends
+from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.users.schemas import UserOut
+
+from app.core.security import get_current_user # E garanta que o get_current_user está importado
 
 from app.database import get_db  # Ajuste o import se o arquivo de sessão tiver outro nome
 from app.users.schemas import UserCreate, UserOut
@@ -39,9 +43,9 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):  # <- M
     return token_response
 
 
-@users_router.get("/me", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def get_me():
-    return {"detail": "Endpoint em desenvolvimento"}
+@users_router.get("/me", status_code=status.HTTP_200_OK, response_model=UserOut)
+async def get_me(current_user = Depends(get_current_user)):
+    return current_user
 
 
 @users_router.get("/me/pedidos", status_code=status.HTTP_501_NOT_IMPLEMENTED)
