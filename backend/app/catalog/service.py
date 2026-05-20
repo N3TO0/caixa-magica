@@ -24,7 +24,7 @@ class CatalogService:
             )
         )
 
-        return result.scalars().all()
+        return result.scalars().unique().all()
 
 
     async def get_product_by_id(self, product_id: int):
