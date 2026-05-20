@@ -16,7 +16,7 @@ class OrderService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create_order(self, data: OrderCreate) -> Order:
+    async def create_order(self, data: OrderCreate, user_id: int) -> Order:
         try:
             item_specs = []
             for item in data.items:
@@ -66,7 +66,7 @@ class OrderService:
             )
 
             order = Order(
-                user_id=1,  # TODO: trocar por current_user.id quando o JWT do Neto chegar
+                user_id=user_id,
                 address_id=data.address_id,
                 delivery_type=data.delivery_type,
                 payment_type=data.payment_type,
