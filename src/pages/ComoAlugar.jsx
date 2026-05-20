@@ -58,11 +58,14 @@ export default function ComoAlugar() {
 
   return (
     <>
-      <Hero title="Como Alugar" />
+      <Hero
+        title="Como Alugar"
+        subtitle="Veja como é simples escolher, receber e renovar seus brinquedos favoritos."
+      />
 
       <main className="como-alugar-container">
         <section>
-        <h2>Veja como é simples alugar conosco em poucos passos:</h2>
+        <h2 className="section-title">Aluguel simples, seguro e acompanhado de perto.</h2>
       </section> 
 
         <div className="etapas-grid">
@@ -70,7 +73,7 @@ export default function ComoAlugar() {
             <div className="etapa-card fade-in" key={index}>
               <span className="numero">{index + 1}</span>
               <div className="icone">{etapa.icon}</div>
-              <h3>{etapa.titulo}</h3>
+              <h3>{etapa.titulo.toLowerCase()}</h3>
               <p>{etapa.texto}</p>
             </div>
           ))}

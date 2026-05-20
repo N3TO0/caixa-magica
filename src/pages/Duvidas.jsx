@@ -131,6 +131,7 @@ const enviarPergunta = () => {
        {/* HERO */}
       <Hero
         title="Perguntas Frequentes"
+        subtitle="Tire suas principais dúvidas sobre aluguel, devolução, limpeza e renovação."
       />
     <main className="faq-container">
   

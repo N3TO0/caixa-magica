@@ -1,29 +1,45 @@
 .login-container {
-  max-width: 400px;
-  margin: 80px auto;
-  padding: 30px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  width: min(420px, calc(100% - 32px));
+  margin: 72px auto 20px;
+  padding: 34px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
   text-align: center;
+}
+
+.login-container h2 {
+  margin: 0 0 22px;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+  font-size: 2rem;
 }
 
 .login-container input {
   width: 100%;
-  padding: 12px;
-  margin: 10px 0;
+  min-height: 48px;
+  padding: 0 16px;
+  margin: 8px 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  outline: 0;
 }
 
 .login-container button {
   width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
   padding: 12px;
-  background: #f39325;
+  background: var(--orange);
   border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
+  border-radius: 999px;
+  color: var(--white);
+  font-weight: 800;
 }
 
 .erro {
-  color: red;
+  color: #d7263d;
   margin-top: 10px;
+  font-weight: 700;
 }

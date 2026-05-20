@@ -1,56 +1,29 @@
 .como-alugar-container {
-  max-width: 1300px;
+  width: var(--container);
   margin: 0 auto;
-  font-family: Arial, Helvetica, sans-serif;
 }
 
-.como-alugar-hero {
-  background: linear-gradient(135deg, #22d3ff, #f3b880);
-  padding: 70px 20px;
-  text-align: center;
-}
-
-.como-alugar-hero h1 {
-  font-size: 260%;
-  color: #4b4b4b;
-  margin-bottom: 15px;
-}
-
-.como-alugar-container h2 {
-  font-size: 150%;
-  color: #f09916;
-  text-align: center;
-}
-
-.slogan {
-  font-size: 150%;
-  color: #4b4b4b;
-}
-
-/* GRID (SEM CONTAINER GRANDE) */
 .etapas-grid {
-  display: flex;
-  flex-direction: column; /* um abaixo do outro */
-  gap: 25px;
-  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 28px;
 }
 
-
-/* CARD */
 .etapa-card {
- position: relative; /* ancora o número aqui */
-  background: #fff;
+  position: relative;
   padding: 40px 25px 30px;
-  border-radius: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.94);
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--soft-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-
 .etapa-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 22px rgb(58, 216, 255);
+  box-shadow: 0 22px 42px rgba(18, 38, 63, 0.14);
 }
 
 .etapa-card:hover .numero {
@@ -58,105 +31,93 @@
   transform: scale(1);
 }
 
-/* ÍCONE */
 .icone {
-  font-size: 2.2rem;
-  color: #22d3ff;
-  margin-bottom: 10px;
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--blue-soft);
+  color: var(--blue-dark);
+  font-size: 1.9rem;
 }
 
-/* NÚMERO */
-  .numero {
+.numero {
   position: absolute;
-  top: -12px;
-  left: -12px;
-  background: #f09916;
-  color: #fff;
+  top: -14px;
+  left: -10px;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-
-  opacity: 0;
-  transform: scale(0.5);
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--orange);
+  color: var(--white);
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(255, 138, 0, 0.26);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
- 
 
-/* TEXTO */
 .etapa-card h3 {
   margin: 10px 0;
-  font-size: 130%;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.12rem;
+  text-transform: capitalize;
 }
 
 .etapa-card p {
-  font-size: 130%;
-  color: #555;
-  line-height: 1.5;
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
-/* CARD DO BOTÃO */
 .botao-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 15px;
-  background: linear-gradient(135deg, lch(81.86% 56.2 133.25),#00ff73e7);
-  color: #fff;
+  background: linear-gradient(135deg, var(--green), #68d995);
+  color: var(--white);
 }
 
 .botao-card h3 {
-  color: #020202;
-  font-size: 150%;
+  color: var(--white);
+  font-size: 1.35rem;
 }
 
 .botao-card .btn-alugar {
-  background: #fff;
-  color: #050505e7;
-  font-weight: bold;
+  background: var(--white);
+  color: var(--green-dark);
 }
 
-/* BOTÃO */
 .btn-alugar {
-  background: #ff6a00;
-  color: #fff;
+  background: var(--orange);
+  color: var(--white);
   border: none;
   padding: 14px 40px;
-  border-radius: 30px;
+  border-radius: 999px;
   font-size: 1rem;
+  font-weight: 800;
   cursor: pointer;
   transition: 0.3s;
 }
 
 .btn-alugar:hover {
-  background: #000000;
-  color: #fff;
   transform: scale(1.05);
 }
 
-/* ANIMAÇÃO */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@media (max-width: 860px) {
+  .etapas-grid {
+    grid-template-columns: 1fr;
   }
 }
 
-/* RESPONSIVO */
 @media (max-width: 600px) {
-  .como-alugar-container h2 {
-    font-size: 1.8rem;
-  }
-
   .etapa-card {
-    width: 95%;
+    padding-inline: 20px;
   }
 }

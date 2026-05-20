@@ -7,6 +7,7 @@ export default function Contrato() {
            {/* HERO */}
           <Hero
             title="Contrato"
+            subtitle="Condições de locação organizadas para consulta clara e transparente."
           />
     <main className="contrato-container">
 
