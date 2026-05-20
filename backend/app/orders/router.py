@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.responses import success_response
+from app.core.security import get_current_user
 from app.database import get_db
 from app.orders.schemas import OrderCreate
 from app.orders.service import OrderService
+from app.users.models import User
 
 
 router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
@@ -14,9 +16,10 @@ router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
 async def create_order(
     data: OrderCreate,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     service = OrderService(db)
-    order = await service.create_order(data)
+    order = await service.create_order(data, user_id=current_user.id)
     return success_response(
         data={
             "id": order.id,
@@ -36,9 +39,12 @@ async def check_availability(product_id: int):
 async def get_order(
     order_id: int,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     service = OrderService(db)
-    order = await service.get_order_by_id(order_id, requesting_user_id=1)
+    order = await service.get_order_by_id(
+        order_id, requesting_user_id=current_user.id
+    )
 
     return success_response(
         data={
