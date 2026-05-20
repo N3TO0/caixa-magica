@@ -9,7 +9,13 @@
     "backend": {
       "entrypoint": "backend/api/index.py",
       "routePrefix": "/api",
-      "framework": "fastapi"
+      "framework": "fastapi",
+      "includeFiles": [
+        "backend/app/**",
+        "backend/alembic/**",
+        "backend/alembic.ini",
+        "backend/requirements.txt"
+      ]
     }
   }
 }
