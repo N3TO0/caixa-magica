@@ -1,9 +1,5 @@
 import logging
 
-import builtins
-from typing import Optional
-builtins.Optional = Optional  # Isso injeta o Optional no Python inteiro!
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 

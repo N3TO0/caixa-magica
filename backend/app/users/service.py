@@ -88,9 +88,3 @@ class UserService:
     async def get_user_orders(self, user_id: int):
         # TODO: implementar listagem de pedidos do usuário
         raise NotImplementedError
-
-
-def  get_current_user(usuario_logado):
-    
-    ...
-    
