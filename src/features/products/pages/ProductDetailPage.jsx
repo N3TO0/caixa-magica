@@ -1,19 +1,19 @@
 import { useParams } from "react-router-dom";
-import produtos from "../data/Produtos.json";
-import { useContext, useState } from "react";
-import { useCart } from "../context/CartContext";
-import { FavoritesContext } from "../context/FavoritesContext";
-import Hero from "../shared/components/Hero";
-import "../styles/Produto.css";
+import { useState } from "react";
+import Hero from "../../../shared/components/Hero";
+import { useCart } from "../../cart/hooks/useCart";
+import { useFavorites } from "../../favorites/hooks/useFavorites";
+import { getProductById } from "../services/productsService";
+import "../styles/ProductDetailPage.css";
 
-function ProdutoDetalhe() {
+function ProductDetailPage() {
   const { id } = useParams();
-  const produto = produtos.find(p => p.id === Number(id));
+  const produto = getProductById(id);
 
   const [plano, setPlano] = useState("1dia");
 
   const { addToCart } = useCart();
-  const { toggleFavorite } = useContext(FavoritesContext);
+  const { toggleFavorite } = useFavorites();
 
   if (!produto) return <p className="produto-nao-encontrado">Produto não encontrado</p>;
 
@@ -69,4 +69,4 @@ function ProdutoDetalhe() {
   );
 }
 
-export default ProdutoDetalhe;
+export default ProductDetailPage;

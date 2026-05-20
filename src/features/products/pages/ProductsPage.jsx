@@ -1,21 +1,18 @@
 import { useState } from "react";
-import produtosData from "../data/Produtos.json";
-import ProductCard from "../components/ProdutoCard";
-import Hero from "../shared/components/Hero";
-import "./Produtos.css";
+import Hero from "../../../shared/components/Hero";
+import ProductCard from "../components/ProductCard";
+import { getProducts } from "../services/productsService";
+import { filterProducts } from "../utils/productFilters";
+import "../styles/ProductsPage.css";
 
-export default function Produtos() {
+export default function ProductsPage() {
   const [busca, setBusca] = useState("");
   const [categoria, setCategoria] = useState("Todos");
 
-  const categorias = ["Todos", ...new Set(produtosData.map(p => p.categoria))];
+  const produtos = getProducts();
+  const categorias = ["Todos", ...new Set(produtos.map(p => p.categoria))];
 
-  const produtosFiltrados = produtosData.filter(produto => {
-    const matchBusca = produto.nome.toLowerCase().includes(busca.toLowerCase());
-    const matchCategoria =
-      categoria === "Todos" || produto.categoria === categoria;
-    return matchBusca && matchCategoria;
-  });
+  const produtosFiltrados = filterProducts(produtos, { busca, categoria });
 
   return (
     <>

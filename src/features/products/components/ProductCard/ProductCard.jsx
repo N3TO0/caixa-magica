@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useCart } from "../context/CartContext";
-import "./ProdutoCard.css";
+import { useCart } from "../../../cart/hooks/useCart";
+import "./ProductCard.css";
 
 export default function ProductCard({ produto }) {
   const { addToCart } = useCart();
