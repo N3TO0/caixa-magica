@@ -9,7 +9,7 @@ import {
   FaBars,
   FaSearch,
 } from "react-icons/fa";
-import logo from "../../../img/images/logo.png";
+import logo from "../../../assets/images/logo.png";
 import "./Header.css";
 
 export default function Header() {
