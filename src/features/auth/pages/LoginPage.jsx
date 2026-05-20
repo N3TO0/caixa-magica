@@ -1,27 +1,34 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import "../styles/LoginPage.css";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  function handleLogin(e) {
+  async function handleLogin(e) {
     e.preventDefault();
+    setErro("");
 
     if (!email || !senha) {
       setErro("Preencha todos os campos");
       return;
     }
 
-    // login fake (simulação)
-    if (email === "admin@email.com" && senha === "123456") {
-      localStorage.setItem("usuario", email);
+    try {
+      setLoading(true);
+      await login({ email, password: senha });
       navigate("/");
-    } else {
-      setErro("Email ou senha inválidos");
+    } catch (err) {
+      setErro(err.message || "Email ou senha inválidos");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -46,8 +53,10 @@ export default function LoginPage() {
 
         {erro && <p className="erro">{erro}</p>}
 
-        <button type="submit">Entrar</button>
+        <button type="submit" disabled={loading}>{loading ? "Entrando..." : "Entrar"}</button>
       </form>
+
+      <p className="auth-helper">Ainda não tem conta? <Link to="/cadastro">Cadastre-se</Link></p>
     </div>
   );
 }

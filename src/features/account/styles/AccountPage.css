@@ -1,0 +1,62 @@
+.account-page {
+  width: var(--container);
+  margin: 0 auto;
+}
+
+.account-card {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--soft-shadow);
+}
+
+.account-card h2 {
+  margin: 0 0 10px;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+  text-transform: capitalize;
+}
+
+.account-card p {
+  color: var(--muted);
+}
+
+.orders-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.order-card span {
+  color: var(--orange);
+  font-weight: 800;
+}
+
+.order-card a {
+  color: var(--blue-dark);
+  font-weight: 800;
+}
+
+.order-detail-card {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.order-detail-items {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.order-detail-items article {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--blue-soft);
+}
+
+.order-detail-items span {
+  color: var(--muted);
+}
