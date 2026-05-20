@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import "../styles/LoginPage.css";
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,14 +18,20 @@ export default function RegisterPage() {
     event.preventDefault();
     setErro("");
 
-    if (!form.name || !form.email || !form.password) {
+    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
       setErro("Preencha todos os campos");
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setErro("As senhas não conferem");
       return;
     }
 
     try {
       setLoading(true);
-      await register(form);
+      const { confirmPassword, ...payload } = form;
+      await register(payload);
       navigate("/");
     } catch (err) {
       setErro(err.message || "Não foi possível criar sua conta.");
@@ -41,6 +47,7 @@ export default function RegisterPage() {
         <input placeholder="Nome" value={form.name} onChange={(event) => updateForm("name", event.target.value)} />
         <input type="email" placeholder="Email" value={form.email} onChange={(event) => updateForm("email", event.target.value)} />
         <input type="password" placeholder="Senha" value={form.password} onChange={(event) => updateForm("password", event.target.value)} />
+        <input type="password" placeholder="Confirmar senha" value={form.confirmPassword} onChange={(event) => updateForm("confirmPassword", event.target.value)} />
         {erro && <p className="erro">{erro}</p>}
         <button type="submit" disabled={loading}>{loading ? "Criando..." : "Cadastrar"}</button>
       </form>

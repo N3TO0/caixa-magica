@@ -96,6 +96,7 @@ export default function Header() {
       </div>
 
       <nav className={`header-menu ${menuOpen ? "open" : ""}`}>
+        <NavLink to="/" onClick={() => setMenuOpen(false)}>Início</NavLink>
         <NavLink to="/quem-somos" onClick={() => setMenuOpen(false)}>Quem somos</NavLink>
         <NavLink to="/como-alugar" onClick={() => setMenuOpen(false)}>Como alugar</NavLink>
         <NavLink to="/produtos" onClick={() => setMenuOpen(false)}>Produtos</NavLink>
