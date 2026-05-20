@@ -1,0 +1,105 @@
+.quem-somos {
+  width: var(--container);
+  margin: 0 auto;
+}
+
+.quem-somos-intro {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.quem-somos-conteudo {
+  max-width: 780px;
+  margin: 0 auto;
+  color: #30394a;
+  font-size: 1.06rem;
+  line-height: 1.75;
+}
+
+.quem-somos-conteudo p {
+  margin: 0;
+}
+
+.quem-somos-conteudo p + p {
+  margin-top: 12px;
+}
+
+.quem-somos-cards {
+  max-width: 980px;
+  margin: 32px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.quem-somos-card {
+  min-height: 178px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.93);
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.quem-somos-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 22px 42px rgba(18, 38, 63, 0.14);
+}
+
+.card-icon {
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 2.3rem;
+}
+
+.mission-card .card-icon {
+  background: #ffe0e9;
+}
+
+.vision-card .card-icon {
+  background: #dcebff;
+}
+
+.values-card .card-icon {
+  background: #fff0c9;
+}
+
+.quem-somos-card h3 {
+  margin: 0 0 8px;
+  font-family: "Poppins", sans-serif;
+  font-size: 1.35rem;
+}
+
+.mission-card h3 { color: var(--pink); }
+.vision-card h3 { color: #2c7be5; }
+.values-card h3 { color: var(--orange); }
+
+.quem-somos-card p {
+  margin: 0;
+  color: #384254;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 1050px) {
+  .quem-somos-cards {
+    grid-template-columns: 1fr;
+    max-width: 640px;
+  }
+}
+
+@media (max-width: 600px) {
+  .quem-somos-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+}

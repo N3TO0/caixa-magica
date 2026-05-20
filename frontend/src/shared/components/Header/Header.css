@@ -1,0 +1,237 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 5px 20px rgba(20, 30, 40, 0.07);
+  backdrop-filter: blur(12px);
+}
+
+.header-top {
+  width: var(--container);
+  min-height: 96px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto minmax(260px, 430px) auto;
+  align-items: center;
+  gap: 28px;
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  height: 78px;
+  width: auto;
+}
+
+.logo-name {
+  color: #4b4f57;
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  text-transform: lowercase;
+}
+
+.top-center {
+  width: 100%;
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  padding: 0 8px 0 20px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: var(--soft-shadow);
+}
+
+.search-wrapper input {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  outline: none;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.search-wrapper button {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--blue-soft);
+  color: var(--blue-dark);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.search-wrapper button:hover {
+  transform: scale(1.08);
+  background: var(--orange-soft);
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.icon-btn {
+  position: relative;
+  min-width: 52px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  border: none;
+  padding: 0;
+  background: none;
+  color: #20242b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.icon-btn svg {
+  font-size: 1.65rem;
+}
+
+.icon-btn:hover {
+  transform: translateY(-2px);
+  color: var(--orange);
+}
+
+.instagram svg { color: #e1306c; }
+.whatsapp svg { color: #25d366; }
+.login svg { color: #1e88e5; }
+.carrinho svg { color: var(--orange); }
+
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--blue-dark);
+  font-size: 1.45rem;
+}
+
+.header-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(24px, 6vw, 86px);
+  padding: 13px 16px;
+  background: linear-gradient(90deg, var(--orange), #ff9408);
+  color: var(--white);
+}
+
+.header-menu a {
+  position: relative;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  transition: opacity 0.2s ease;
+}
+
+.header-menu a:hover {
+  opacity: 0.78;
+}
+
+.header-menu a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -14px;
+  height: 4px;
+  border-radius: 999px 999px 0 0;
+  background: var(--white);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -9px;
+  right: 7px;
+  min-width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--pink);
+  color: var(--white);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+@media (max-width: 1024px) {
+  .header-top {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding: 18px 0;
+  }
+
+  .top-right {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .search-wrapper {
+    width: min(100%, 560px);
+  }
+}
+
+@media (max-width: 768px) {
+  .logo {
+    height: 64px;
+  }
+
+  .logo-name {
+    font-size: 1.25rem;
+  }
+
+  .menu-btn {
+    display: grid;
+    place-items: center;
+  }
+
+  .header-menu {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .header-menu.open {
+    display: flex;
+  }
+
+  .icon-btn {
+    min-width: 44px;
+  }
+
+  .icon-btn span {
+    display: none;
+  }
+
+  .cart-badge {
+    right: -2px;
+  }
+}

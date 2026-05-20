@@ -1,0 +1,123 @@
+.como-alugar-container {
+  width: var(--container);
+  margin: 0 auto;
+}
+
+.etapas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 28px;
+}
+
+.etapa-card {
+  position: relative;
+  padding: 40px 25px 30px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.94);
+  text-align: center;
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.etapa-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 22px 42px rgba(18, 38, 63, 0.14);
+}
+
+.etapa-card:hover .numero {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.icone {
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--blue-soft);
+  color: var(--blue-dark);
+  font-size: 1.9rem;
+}
+
+.numero {
+  position: absolute;
+  top: -14px;
+  left: -10px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--orange);
+  color: var(--white);
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(255, 138, 0, 0.26);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.etapa-card h3 {
+  margin: 10px 0;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.12rem;
+  text-transform: capitalize;
+}
+
+.etapa-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.botao-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  background: linear-gradient(135deg, var(--green), #68d995);
+  color: var(--white);
+}
+
+.botao-card h3 {
+  color: var(--white);
+  font-size: 1.35rem;
+}
+
+.botao-card .btn-alugar {
+  background: var(--white);
+  color: var(--green-dark);
+}
+
+.btn-alugar {
+  background: var(--orange);
+  color: var(--white);
+  border: none;
+  padding: 14px 40px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-alugar:hover {
+  transform: scale(1.05);
+}
+
+@media (max-width: 860px) {
+  .etapas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .etapa-card {
+    padding-inline: 20px;
+  }
+}

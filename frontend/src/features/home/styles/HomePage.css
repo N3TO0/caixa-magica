@@ -1,0 +1,195 @@
+.home {
+  width: 100%;
+}
+
+.home-hero {
+  position: relative;
+  width: var(--container);
+  margin: 22px auto 34px;
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  gap: 32px;
+  align-items: center;
+  padding: 34px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(115deg, rgba(255, 243, 216, 0.95), rgba(223, 248, 255, 0.95));
+  box-shadow: var(--shadow);
+}
+
+.home-hero-text span {
+  display: inline-flex;
+  margin-bottom: 14px;
+  padding: 7px 18px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: var(--white);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.home-hero-text h1 {
+  margin: 0;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(2.3rem, 5vw, 4.2rem);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.home-hero-text p {
+  margin: 18px 0 24px;
+  color: #273247;
+  font-size: 1.16rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.home-hero-image img {
+  width: 100%;
+  max-height: 430px;
+  object-fit: cover;
+  border-radius: 26px;
+  box-shadow: 0 18px 34px rgba(18, 38, 63, 0.13);
+}
+
+.comoalugar-banner {
+  width: var(--container);
+  margin: 0 auto 30px;
+}
+
+.banner-img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  display: block;
+  box-shadow: var(--soft-shadow);
+}
+
+.apresentacao {
+  width: var(--container);
+  margin: 0 auto 30px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--soft-shadow);
+  text-align: center;
+}
+
+.apresentacao-vantagens {
+  margin-top: 28px;
+  padding: 48px 0;
+  background:
+    radial-gradient(circle at 12% 24%, rgba(255, 255, 255, 0.2), transparent 13%),
+    linear-gradient(135deg, #ffa51f, var(--orange));
+}
+
+.conteudo-vantagens {
+  width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.texto-vantagens {
+  max-width: 700px;
+  text-align: center;
+  color: var(--white);
+}
+
+.texto-vantagens h2 {
+  margin: 0 0 16px;
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+}
+
+.texto-vantagens p {
+  margin: 0;
+  font-size: 1.18rem;
+  line-height: 1.7;
+}
+
+.vantagens-cards h3 {
+  margin: 12px 0 10px;
+  color: var(--orange);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.vantagens {
+ display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+.vantagens-cards {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vantagens-cards:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 36px rgba(18, 38, 63, 0.16);
+}
+
+.icone-vantagem {
+  font-size: 2.4rem;
+  color: var(--blue-dark);
+}
+
+@media (max-width: 1024px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .vantagens {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .home-hero {
+    padding: 24px;
+  }
+
+  .vantagens {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cta {
+  width: var(--container);
+  margin: 34px auto 0;
+  padding: 34px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  background: linear-gradient(135deg, rgba(223, 248, 255, 0.9), rgba(255, 243, 216, 0.95));
+  box-shadow: var(--shadow);
+}
+
+.cta h3 {
+  margin: 0;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.55rem;
+}
+
+.cta p {
+  margin: 15px 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+}

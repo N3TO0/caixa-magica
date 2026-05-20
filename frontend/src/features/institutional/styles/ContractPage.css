@@ -1,0 +1,44 @@
+.contrato-container {
+  color: var(--text);
+  width: min(920px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.contrato-container section {
+  margin-bottom: 22px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--soft-shadow);
+}
+
+.contrato-container h2 {
+  margin: 0 0 18px;
+  color: var(--orange);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.35rem;
+}
+
+.contrato-container p {
+  line-height: 1.7;
+  margin: 0 0 12px;
+  text-align: justify;
+  font-size: 1rem;
+}
+
+.contrato-container strong {
+  color: var(--blue-dark);
+}
+
+.paragrafo {
+  margin-left: 20px;
+  font-style: italic;
+  color: #555;
+}
+
+@media (max-width: 600px) {
+  .contrato-container section {
+    padding: 22px;
+  }
+}
