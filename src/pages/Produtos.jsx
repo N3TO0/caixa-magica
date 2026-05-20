@@ -1,6 +1,7 @@
 import { useState } from "react";
 import produtosData from "../data/Produtos.json";
 import ProductCard from "../components/ProdutoCard";
+import Hero from "../components/Hero/Hero";
 import "./Produtos.css";
 
 export default function Produtos() {
@@ -17,30 +18,36 @@ export default function Produtos() {
   });
 
   return (
-    <div>
-      <h1>Produtos</h1>
+    <>
+      <Hero
+        title="Produtos"
+        subtitle="Encontre brinquedos e itens infantis para alugar pelo período ideal."
+      />
 
-      {/* BUSCA */}
+    <main className="produtos-page">
+      <div className="produtos-toolbar">
+
       <input
+        className="field-control"
         type="text"
         placeholder="Buscar produto..."
         value={busca}
         onChange={(e) => setBusca(e.target.value)}
       />
 
-      {/* FILTRO */}
-      <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
+      <select className="field-control" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
         {categorias.map(cat => (
           <option key={cat}>{cat}</option>
         ))}
       </select>
+      </div>
 
-      {/* LISTA */}
       <div className="grid">
         {produtosFiltrados.map(produto => (
           <ProductCard key={produto.id} produto={produto} />
         ))}
       </div>
-    </div>
+    </main>
+    </>
   );
 }

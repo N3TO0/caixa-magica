@@ -1,0 +1,20 @@
+.pesquisa-page {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 30px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--soft-shadow);
+  text-align: center;
+}
+
+.pesquisa-page p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+
+.pesquisa-page strong {
+  color: var(--blue-dark);
+}

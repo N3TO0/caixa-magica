@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import React from "react";
 import banner from "../img/images/banner-home.png";
 import alugar from "../img/images/comoalugar-banner.png";
 import "./Home.css";
@@ -14,14 +13,18 @@ import {
 export default function Home() {
   return (
     <main className="home">
-
-      {/* BANNER */}
-      <section className="home-banner">
-        <img
-          src={banner}
-          alt="Imagem da página inicial"
-          className="banner-img"
-        />
+      <section className="home-hero">
+        <div className="home-hero-text">
+          <span>Caixa Mágica</span>
+          <h1>Brinquedos para cada fase, sem acumular em casa.</h1>
+          <p>
+            Alugue itens infantis selecionados, higienizados e prontos para criar novas histórias em família.
+          </p>
+          <Link to="/produtos" className="primary-button">Ver produtos</Link>
+        </div>
+        <div className="home-hero-image">
+          <img src={banner} alt="Imagem da página inicial" />
+        </div>
       </section>
 
       <section className="comoalugar-banner">
@@ -32,20 +35,16 @@ export default function Home() {
         />
       </section>
 
-      {/* APRESENTAÇÃO */}
       <section className="apresentacao">
-        <h2>
-          CONFIRA OS PRODUTOS EM DESTAQUES:
-        </h2>
-
+        <h2 className="section-title">Confira os produtos em destaque</h2>
+        <p className="section-lead">Escolha brinquedos e acessórios adequados para o momento da sua criança.</p>
       </section>
 
-
-     <section className="apresentacao-vantagens">
-       <div className="conteudo-vantagens">
+      <section className="apresentacao-vantagens">
+        <div className="conteudo-vantagens">
 
     <div className="texto-vantagens">
-  <h2>VANTAGENS EM ALUGAR:</h2>
+  <h2>Vantagens em alugar</h2>
 
   <p>
     Alugar é sempre mais fácil e prático! Além da diversão compartilhada com outras famílias,
@@ -54,7 +53,7 @@ export default function Home() {
   </div>
 
 <section className="vantagens">
-  <div className="vantagens-cards">
+    <article className="vantagens-cards">
 <span>
       <FaPuzzlePiece className="icone-vantagem" />
       </span>
@@ -64,9 +63,9 @@ export default function Home() {
         Seu filho terá uma gama muito maior de itens disponíveis no mercado,
         todos cuidadosamente selecionados e aprovados.
       </p>
-    </div>
+    </article>
 
-    <div className="vantagens-cards">
+    <article className="vantagens-cards">
       <span>
       <FaTruck className="icone-vantagem" />
       </span>
@@ -75,9 +74,9 @@ export default function Home() {
         Entrega e retirada dos brinquedos em sua casa ou na loja física,
         com total praticidade.
       </p>
-    </div>
+    </article>
 
-    <div className="vantagens-cards">
+    <article className="vantagens-cards">
       <span>
       <FaBroom className="icone-vantagem" />
       </span>
@@ -85,9 +84,9 @@ export default function Home() {
       <p>
         Mais espaço em casa, menos acúmulo de brinquedos sem uso.
       </p>
-    </div>
+    </article>
 
-    <div className="vantagens-cards">
+    <article className="vantagens-cards">
       <span>
       <FaLeaf className="icone-vantagem" />
       </span>
@@ -95,9 +94,9 @@ export default function Home() {
       <p>
         Incentivo ao consumo consciente e redução de impacto ambiental.
       </p>
-    </div>
+    </article>
 
-    <div className="vantagens-cards">
+    <article className="vantagens-cards">
       <span>
       <FaPiggyBank className="icone-vantagem" />
       </span>
@@ -105,25 +104,20 @@ export default function Home() {
       <p>
         Economia de até 70% pagando apenas pelo período de uso.
       </p>
-    </div>
+    </article>
 
 </section>
   </div>
 </section>
 
 
-      {/* CHAMADA PARA AÇÃO */}
       <section className="cta">
         <h3>PRONTO PARA ALUGAR?</h3>
         <p>
           Escolha os produtos ideais para o seu momento especial.
         </p>
 
-    <Link to="/produtos">
-        <button className="cta-button">
-          Ver todos os produtos
-        </button>
-    </Link>
+        <Link to="/produtos" className="primary-button">Ver todos os produtos</Link>
       </section>
 
     </main>

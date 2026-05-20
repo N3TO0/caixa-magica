@@ -14,7 +14,7 @@ export default function ProductCard({ produto }) {
   ];
 
   return (
-    <div className="card">
+    <article className="produto-card">
       <img src={produto.imagem} alt={produto.nome} />
       <h3>{produto.nome}</h3>
       <p>{produto.descricao}</p>
@@ -52,6 +52,6 @@ export default function ProductCard({ produto }) {
       >
         Adicionar ao carrinho
       </button>
-    </div>
+    </article>
   );
 }

@@ -3,6 +3,7 @@ import produtos from "../data/Produtos.json";
 import { useContext, useState } from "react";
 import { useCart } from "../context/CartContext";
 import { FavoritesContext } from "../context/FavoritesContext";
+import Hero from "../components/Hero/Hero";
 import "../styles/Produto.css";
 
 function ProdutoDetalhe() {
@@ -14,10 +15,12 @@ function ProdutoDetalhe() {
   const { addToCart } = useCart();
   const { toggleFavorite } = useContext(FavoritesContext);
 
-  if (!produto) return <p>Produto não encontrado</p>;
+  if (!produto) return <p className="produto-nao-encontrado">Produto não encontrado</p>;
 
   return (
-    <div className="produto-page">
+    <>
+    <Hero title={produto.nome} subtitle="Escolha o prazo ideal e adicione o item ao seu carrinho." />
+    <main className="produto-page">
 
       <div className="produto-topo">
 
@@ -61,7 +64,8 @@ function ProdutoDetalhe() {
         </div>
       </div>
 
-    </div>
+    </main>
+    </>
   );
 }
 

@@ -1,130 +1,157 @@
 .home {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
   width: 100%;
 }
 
-/* BANNERS */
-.home-banner,
+.home-hero {
+  position: relative;
+  width: var(--container);
+  margin: 22px auto 34px;
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  gap: 32px;
+  align-items: center;
+  padding: 34px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(115deg, rgba(255, 243, 216, 0.95), rgba(223, 248, 255, 0.95));
+  box-shadow: var(--shadow);
+}
+
+.home-hero-text span {
+  display: inline-flex;
+  margin-bottom: 14px;
+  padding: 7px 18px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: var(--white);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.home-hero-text h1 {
+  margin: 0;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(2.3rem, 5vw, 4.2rem);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.home-hero-text p {
+  margin: 18px 0 24px;
+  color: #273247;
+  font-size: 1.16rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.home-hero-image img {
+  width: 100%;
+  max-height: 430px;
+  object-fit: cover;
+  border-radius: 26px;
+  box-shadow: 0 18px 34px rgba(18, 38, 63, 0.13);
+}
+
 .comoalugar-banner {
-  width: 100%;
-  margin-bottom: 30px;
+  width: var(--container);
+  margin: 0 auto 30px;
 }
 
 .banner-img {
   width: 100%;
-  max-height: 600px;
+  max-height: 360px;
   object-fit: cover;
+  border-radius: var(--radius-lg);
   display: block;
+  box-shadow: var(--soft-shadow);
 }
 
-/* APRESENTAÇÃO */
 .apresentacao {
-  padding: 20px 20px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  margin-bottom: 30px;
+  width: var(--container);
+  margin: 0 auto 30px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--soft-shadow);
   text-align: center;
 }
 
-@media (max-width: 768px) {
-  .apresentacao {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-/* PRODUTOS EM DESTAQUES - falta */
-
 .apresentacao-vantagens {
-  padding: 40px 20px;
-  background-color:  #f39325;
+  margin-top: 28px;
+  padding: 48px 0;
+  background:
+    radial-gradient(circle at 12% 24%, rgba(255, 255, 255, 0.2), transparent 13%),
+    linear-gradient(135deg, #ffa51f, var(--orange));
 }
 
-/* LAYOUT PRINCIPAL */
 .conteudo-vantagens {
-  max-width: 1200px;
+  width: var(--container);
   margin: 0 auto;
-
   display: flex;
-  flex-direction: column; /* 🔑 texto em cima, cards embaixo */
+  flex-direction: column;
   align-items: center;
   gap: 40px;
 }
 
-
-/* TEXTO ESQUERDA */
 .texto-vantagens {
   max-width: 700px;
   text-align: center;
-  padding: 20px;
+  color: var(--white);
 }
 
 .texto-vantagens h2 {
-  font-size: 25px;
-  margin-bottom: 16px;
+  margin: 0 0 16px;
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
 }
 
 .texto-vantagens p {
-  font-size: 22px;
+  margin: 0;
+  font-size: 1.18rem;
   line-height: 1.7;
-   padding: 20px;
 }
 
 .vantagens-cards h3 {
-  color: #f39325; /* laranja */
-  min-height: 60px;
+  margin: 12px 0 10px;
+  color: var(--orange);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.05rem;
   text-align: center;
 }
 
-/* GRID DOS CARDS */
 .vantagens {
  display: grid;
- grid-template-columns: repeat(5, 1fr); /* 🔥 todos na mesma linha */
- gap: 24px;
- width: 100%;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
+  width: 100%;
 }
 
-/* CARD */
 .vantagens-cards {
-  min-height: 280px;
+  min-height: 260px;
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-md);
   padding: 20px;
-  background-color: #fff;
-
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  background-color: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--soft-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* movimento ao passar o mouse */
 .vantagens-cards:hover {
   transform: translateY(-8px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 18px 36px rgba(18, 38, 63, 0.16);
 }
 
-
-/* ÍCONE */
 .icone-vantagem {
-  font-size: 40px;
-  color: #000000;
-  margin-bottom: 10px;
+  font-size: 2.4rem;
+  color: var(--blue-dark);
 }
 
-/* ================= RESPONSIVO ================= */
 @media (max-width: 1024px) {
-  .conteudo-vantagens {
+  .home-hero {
     grid-template-columns: 1fr;
   }
 
@@ -134,37 +161,35 @@ body {
 }
 
 @media (max-width: 600px) {
+  .home-hero {
+    padding: 24px;
+  }
+
   .vantagens {
     grid-template-columns: 1fr;
   }
 }
 
-/* CHAMADA PARA AÇÃO */
 .cta {
-  padding: 30px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  width: var(--container);
+  margin: 34px auto 0;
+  padding: 34px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
   text-align: center;
-  background-color: #ccc;
-  font-size: 22px;
+  background: linear-gradient(135deg, rgba(223, 248, 255, 0.9), rgba(255, 243, 216, 0.95));
+  box-shadow: var(--shadow);
+}
+
+.cta h3 {
+  margin: 0;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.55rem;
 }
 
 .cta p {
   margin: 15px 0;
-   font-size: 22px;
+  color: var(--muted);
+  font-size: 1.08rem;
 }
-
-.cta-button {
-  padding: 12px 20px;
-  font-size: 22px;
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  background-color: #08ce61e7;;
-  color: #fff;
-}
-
-.cta-button:hover {
-  background-color:  #f39325;
-}
-
