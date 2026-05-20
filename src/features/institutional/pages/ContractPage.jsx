@@ -4,7 +4,6 @@ import "../styles/ContractPage.css";
 export default function ContractPage() {
   return (
     <>
-           {/* HERO */}
           <Hero
             title="Contrato"
             subtitle="Condições de locação organizadas para consulta clara e transparente."

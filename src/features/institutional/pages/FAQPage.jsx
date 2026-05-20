@@ -128,7 +128,6 @@ const enviarPergunta = () => {
 
   return (
      <>
-       {/* HERO */}
       <Hero
         title="Perguntas Frequentes"
         subtitle="Tire suas principais dúvidas sobre aluguel, devolução, limpeza e renovação."

@@ -4,7 +4,6 @@ import "../styles/AboutPage.css";
 export default function AboutPage() {
   return (
        <>
-       {/* HERO */}
       <Hero
         title="Quem Somos"
         subtitle="Transformamos o brincar em um futuro melhor para as crianças e para o planeta."

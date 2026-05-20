@@ -78,7 +78,6 @@ export default function HowToRentPage() {
             </div>
           ))}
           
-  {/* CARD DO BOTÃO */}
   <div className="etapa-card botao-card">
     <h3>Pronto para começar?</h3>
     <button className="btn-alugar">Quero alugar</button>
