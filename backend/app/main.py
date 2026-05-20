@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.catalog.router import router as catalog_router
+from app.config import settings
 from app.orders.router import router as orders_router
 from app.users.router import auth_router, users_router
 
@@ -15,7 +16,7 @@ app = FastAPI(title="Caixa Mágica API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
