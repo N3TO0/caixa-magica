@@ -47,7 +47,6 @@ npm run preview
 
 - `/`
 - `/produtos`
-- `/produtos/:id`
 - `/quem-somos`
 - `/como-alugar`
 - `/duvidas`
