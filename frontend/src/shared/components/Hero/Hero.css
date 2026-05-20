@@ -1,0 +1,120 @@
+.hero {
+  position: relative;
+  width: var(--container);
+  margin: 22px auto 42px;
+  padding: 54px 72px;
+  border-radius: 28px;
+  background: linear-gradient(115deg, rgba(255, 243, 216, 0.95) 0%, rgba(255, 250, 239, 0.92) 43%, rgba(223, 248, 255, 0.95) 100%);
+  box-shadow: var(--shadow);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+.hero::before {
+  width: 470px;
+  height: 220px;
+  left: -100px;
+  bottom: -78px;
+  background: rgba(255, 216, 122, 0.32);
+}
+
+.hero::after {
+  width: 520px;
+  height: 220px;
+  right: -80px;
+  bottom: -72px;
+  background: rgba(40, 198, 223, 0.15);
+}
+
+.hero-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  padding: 7px 28px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: var(--white);
+  font-family: "Poppins", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.hero-box h1 {
+  margin: 0;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(2.7rem, 6vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -2px;
+}
+
+.hero-box .slogan {
+  margin: 20px 0 0;
+  max-width: 700px;
+  color: #273247;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.hero-decoration {
+  position: absolute;
+  pointer-events: none;
+  font-weight: 800;
+}
+
+.hero-star {
+  left: 12%;
+  top: 58%;
+  color: #ffdd48;
+  font-size: 38px;
+  transform: rotate(-16deg);
+}
+
+.hero-plane {
+  left: 14%;
+  bottom: 23%;
+  color: var(--blue);
+  font-size: 44px;
+  transform: rotate(-18deg);
+}
+
+.hero-heart {
+  right: 19%;
+  top: 32%;
+  color: #22b9d4;
+  font-size: 52px;
+  transform: rotate(-15deg);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 42px 22px;
+    margin-top: 16px;
+  }
+
+  .hero-star,
+  .hero-plane,
+  .hero-heart {
+    display: none;
+  }
+}

@@ -1,0 +1,23 @@
+.produtos-page {
+  width: var(--container);
+  margin: 0 auto;
+}
+
+.produtos-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 280px);
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 700px) {
+  .produtos-toolbar {
+    grid-template-columns: 1fr;
+  }
+}

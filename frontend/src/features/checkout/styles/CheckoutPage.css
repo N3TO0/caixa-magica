@@ -1,0 +1,139 @@
+.checkout-page {
+  width: var(--container);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.checkout-card {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--soft-shadow);
+}
+
+.checkout-card h2 {
+  margin: 0 0 18px;
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+}
+
+.checkout-items {
+  display: grid;
+  gap: 14px;
+}
+
+.checkout-item {
+  display: grid;
+  grid-template-columns: 82px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 18px;
+  background: var(--blue-soft);
+}
+
+.checkout-item img {
+  width: 82px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 14px;
+  background: var(--white);
+}
+
+.checkout-item h3,
+.checkout-item p {
+  margin: 0;
+}
+
+.checkout-item p {
+  color: var(--muted);
+}
+
+.checkout-item button {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: var(--white);
+  color: var(--pink);
+  font-weight: 800;
+}
+
+.checkout-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 1.25rem;
+}
+
+.checkout-form {
+  display: grid;
+  gap: 14px;
+}
+
+.checkout-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--blue-dark);
+  font-weight: 800;
+}
+
+.checkout-form input,
+.checkout-form select,
+.checkout-form textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  outline: 0;
+}
+
+.checkout-form textarea {
+  min-height: 100px;
+  padding: 14px;
+  resize: vertical;
+}
+
+.checkout-submit {
+  min-height: 48px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--orange);
+  color: var(--white);
+  font-weight: 800;
+}
+
+.checkout-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.checkout-empty,
+.checkout-inline-error {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.checkout-inline-error {
+  color: #b91c35;
+}
+
+@media (max-width: 900px) {
+  .checkout-page {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-item {
+    grid-template-columns: 72px 1fr;
+  }
+
+  .checkout-item button {
+    grid-column: 1 / -1;
+  }
+}

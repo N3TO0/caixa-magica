@@ -1,0 +1,11 @@
+.error-message {
+  width: min(760px, calc(100% - 32px));
+  margin: 20px auto;
+  padding: 16px 18px;
+  border: 1px solid rgba(215, 38, 61, 0.2);
+  border-radius: var(--radius-md);
+  background: rgba(255, 224, 233, 0.8);
+  color: #b91c35;
+  font-weight: 800;
+  text-align: center;
+}
