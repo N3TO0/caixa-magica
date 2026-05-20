@@ -5,6 +5,16 @@ function Footer() {
   return (
     <footer className="footer">
       <div className="footer-container">
+        <div className="footer-brand">
+          <div className="footer-logo">caixa mágica</div>
+          <p>
+            Brinquedos que encantam, histórias que transformam e um futuro que a gente constrói juntos.
+          </p>
+          <div className="footer-social" aria-label="Redes sociais">
+            <a href="https://www.instagram.com/caixamagica_" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="https://wa.me/5579998112997" target="_blank" rel="noreferrer">WhatsApp</a>
+          </div>
+        </div>
 
         <div className="footer-column">
           <h4>CAIXA MÁGICA</h4>
@@ -28,14 +38,13 @@ function Footer() {
           <Link to="/cadastro">Cadastro</Link>
         </div>
 
-        {/* NOVA COLUNA ENDEREÇO */}
         <div className="footer-column">
           <h4>ENDEREÇO</h4>
           <span>Rua Urbano Neto</span>
           <span>Galeria da Pousada do Farol, Loja 04</span>
           <span>Atalaia, Aracaju - SE</span>
           <span>CEP: 49035-190</span>
-</div>
+        </div>
 
       </div>
 
