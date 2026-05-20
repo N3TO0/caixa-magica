@@ -1,0 +1,39 @@
+/* FILTRO */
+.filtro-idade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.filtro-idade button {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+}
+
+.filtro-idade button.ativo {
+  background-color: #fd8839;
+  color: #fff;
+  border-color: #fd8839;
+}
+
+/* BADGE */
+.badge-idade {
+  background-color: #0ad5f0;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  margin: 10px 0;
+  display: inline-block;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
