@@ -77,13 +77,13 @@ export default function Header() {
             <span>Conta</span>
           </Link>
 
-          <button className="icon-btn carrinho" aria-label="Carrinho">
+          <Link to="/checkout" className="icon-btn carrinho" aria-label="Carrinho">
             <FaShoppingCart />
             {cartItems?.length > 0 && (
               <span className="cart-badge">{cartItems.length}</span>
             )}
             <span>Carrinho</span>
-          </button>
+          </Link>
 
           <button
             className="menu-btn"
