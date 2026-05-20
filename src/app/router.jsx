@@ -1,5 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import LoginPage from "@/features/auth/pages/LoginPage";
+import CheckoutPage from "@/features/checkout/pages/CheckoutPage";
+import OrderSuccessPage from "@/features/checkout/pages/OrderSuccessPage";
 import HomePage from "@/features/home/pages/HomePage";
 import AboutPage from "@/features/institutional/pages/AboutPage";
 import ContractPage from "@/features/institutional/pages/ContractPage";
@@ -21,6 +23,8 @@ export default function AppRouter() {
       <Route path="/contrato" element={<ContractPage />} />
       <Route path="/pesquisa/:termo" element={<SearchPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/pedido/sucesso/:id" element={<OrderSuccessPage />} />
     </Routes>
   );
 }
