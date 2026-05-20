@@ -1,7 +1,11 @@
 import { useState } from "react";
+import EmptyState from "@/shared/components/EmptyState";
+import ErrorMessage from "@/shared/components/ErrorMessage";
 import Hero from "@/shared/components/Hero";
+import LoadingState from "@/shared/components/LoadingState";
 import ProductCard from "../components/ProductCard";
-import { getProducts } from "../services/productsService";
+import { useCategories } from "../hooks/useCategories";
+import { useProducts } from "../hooks/useProducts";
 import { filterProducts } from "../utils/productFilters";
 import "../styles/ProductsPage.css";
 
@@ -9,10 +13,10 @@ export default function ProductsPage() {
   const [busca, setBusca] = useState("");
   const [categoria, setCategoria] = useState("Todos");
 
-  const produtos = getProducts();
-  const categorias = ["Todos", ...new Set(produtos.map(p => p.categoria))];
+  const { products, loading, error } = useProducts();
+  const { categories } = useCategories();
 
-  const produtosFiltrados = filterProducts(produtos, { busca, categoria });
+  const produtosFiltrados = filterProducts(products, { busca, categoria });
 
   return (
     <>
@@ -33,11 +37,19 @@ export default function ProductsPage() {
       />
 
       <select className="field-control" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
-        {categorias.map(cat => (
-          <option key={cat}>{cat}</option>
+        <option value="Todos">Todas as categorias</option>
+        {categories.map(cat => (
+          <option key={cat.id} value={cat.slug}>{cat.name}</option>
         ))}
       </select>
       </div>
+
+      {loading && <LoadingState message="Carregando produtos..." />}
+      {error && <ErrorMessage message={error.message} />}
+
+      {!loading && !error && produtosFiltrados.length === 0 && (
+        <EmptyState title="Nenhum produto encontrado" />
+      )}
 
       <div className="grid">
         {produtosFiltrados.map(produto => (

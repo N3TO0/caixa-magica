@@ -50,6 +50,7 @@
   background: linear-gradient(135deg, var(--orange), #ff9d22);
   color: white;
   font-weight: 800;
+  text-align: center;
 }
 
 .bloco-prazo {
@@ -72,6 +73,9 @@
 }
 
 .prazo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 6px 0;
   border-radius: 14px;
   border: 1px solid #ddd;
@@ -94,8 +98,16 @@
 
 /* preço */
 .preco {
+  display: grid;
+  gap: 2px;
   font-size: 1.35rem;
   font-weight: bold;
   margin: 12px 0;
   color: var(--green-dark);
+}
+
+.preco span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
