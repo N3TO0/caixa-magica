@@ -1,5 +1,5 @@
 import "./Contrato.css";
-import Hero from "../components/Hero/Hero";
+import Hero from "../shared/components/Hero";
 
 export default function Contrato() {
   return (

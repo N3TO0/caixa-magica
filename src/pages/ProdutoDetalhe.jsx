@@ -3,7 +3,7 @@ import produtos from "../data/Produtos.json";
 import { useContext, useState } from "react";
 import { useCart } from "../context/CartContext";
 import { FavoritesContext } from "../context/FavoritesContext";
-import Hero from "../components/Hero/Hero";
+import Hero from "../shared/components/Hero";
 import "../styles/Produto.css";
 
 function ProdutoDetalhe() {

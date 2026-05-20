@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { useCart } from "../../../context/CartContext";
 import {
   FaInstagram,
   FaWhatsapp,
@@ -9,7 +9,7 @@ import {
   FaBars,
   FaSearch,
 } from "react-icons/fa";
-import logo from "../img/images/logo.png";
+import logo from "../../../img/images/logo.png";
 import "./Header.css";
 
 export default function Header() {

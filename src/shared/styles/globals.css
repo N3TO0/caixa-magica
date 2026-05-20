@@ -1,26 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap");
-
-:root {
-  --orange: #ff8a00;
-  --orange-dark: #ef7600;
-  --orange-soft: #fff3d8;
-  --blue: #28c6df;
-  --blue-dark: #043b70;
-  --blue-soft: #dff8ff;
-  --pink: #ff4f7b;
-  --green: #74bd68;
-  --green-dark: #32965d;
-  --text: #253143;
-  --muted: #5c6470;
-  --line: rgba(37, 49, 67, 0.1);
-  --white: #ffffff;
-  --shadow: 0 18px 40px rgba(18, 38, 63, 0.11);
-  --soft-shadow: 0 10px 24px rgba(18, 38, 63, 0.09);
-  --radius-lg: 32px;
-  --radius-md: 22px;
-  --radius-sm: 14px;
-  --container: min(1180px, calc(100% - 32px));
-}
+@import "./tokens.css";
 
 * {
   box-sizing: border-box;

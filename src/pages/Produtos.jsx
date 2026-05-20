@@ -1,7 +1,7 @@
 import { useState } from "react";
 import produtosData from "../data/Produtos.json";
 import ProductCard from "../components/ProdutoCard";
-import Hero from "../components/Hero/Hero";
+import Hero from "../shared/components/Hero";
 import "./Produtos.css";
 
 export default function Produtos() {

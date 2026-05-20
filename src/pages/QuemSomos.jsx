@@ -1,5 +1,5 @@
 import "./QuemSomos.css";
-import Hero from "../components/Hero/Hero";
+import Hero from "../shared/components/Hero";
 
 export default function QuemSomos() {
   return (
