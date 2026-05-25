@@ -249,8 +249,8 @@ pendente → confirmado → em_uso → devolvido → finalizado
 | Backend — Catálogo | Fernanda |
 | Backend — Pedido e Reserva | Felipe |
 | Backend — Cliente, Auth e Admin | Neto |
-| Frontend — Catálogo e produto | [Nome 4] |
-| Frontend — Checkout e área do cliente | [Nome 5] |
+| Frontend — Catálogo e produto | Adriele |
+| Frontend — Checkout e área do cliente | Ravel |
 
 ---
 
