@@ -56,6 +56,12 @@ export default function LoginPage() {
         <button type="submit" disabled={loading}>{loading ? "Entrando..." : "Entrar"}</button>
       </form>
 
+      <p className="auth-helper">
+        <Link to="/recuperacao-senha">
+          Esqueceu sua senha?
+        </Link>
+      </p>
+
       <p className="auth-helper">Ainda não tem conta? <Link to="/cadastro">Cadastre-se</Link></p>
     </div>
   );

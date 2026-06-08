@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import AccountPage from "@/features/account/pages/AccountPage";
+import EditAccountPage from "@/features/account/pages/EditAccountPage";
 import MyOrdersPage from "@/features/account/pages/MyOrdersPage";
 import OrderDetailPage from "@/features/account/pages/OrderDetailPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
@@ -14,6 +15,8 @@ import HowToRentPage from "@/features/institutional/pages/HowToRentPage";
 import ProductDetailPage from "@/features/products/pages/ProductDetailPage";
 import ProductsPage from "@/features/products/pages/ProductsPage";
 import SearchPage from "@/features/search/pages/SearchPage";
+import CartPage from "@/features/cart/pages/CartPage";
+import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 
 export default function AppRouter() {
   return (
@@ -31,8 +34,11 @@ export default function AppRouter() {
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/pedido/sucesso/:id" element={<OrderSuccessPage />} />
       <Route path="/minha-conta" element={<AccountPage />} />
+      <Route path="/minha-conta/editar" element={<EditAccountPage />} />
       <Route path="/meus-pedidos" element={<MyOrdersPage />} />
       <Route path="/pedidos/:id" element={<OrderDetailPage />} />
+      <Route path="/carrinho" element={<CartPage />} />
+      <Route path="/recuperacao-senha" element={<ForgotPasswordPage />} />
     </Routes>
   );
 }

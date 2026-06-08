@@ -1,7 +1,9 @@
 export function getCartTotal(cartItems) {
-  return cartItems.reduce((total, item) => total + Number(item.price_snapshot || 0), 0);
-}
+  return cartItems.reduce((total, item) => {
+    const unit = Number(item.price_snapshot || 0);
+    const qty = Number(item.quantity || 1);
+    const days = Number(item.days || 7);
 
-export function getCartItemsCount(cartItems) {
-  return cartItems.length;
+    return total + unit * qty * (days / 7);
+  }, 0);
 }
