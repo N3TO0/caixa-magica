@@ -8,6 +8,7 @@ from app.config import settings
 from app.core.exceptions import UnauthorizedException
 
 
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -40,42 +41,66 @@ def decode_token(token: str) -> dict:
 # -------------------------------------------------------------------------
 
 from fastapi import Depends
+from app.database import get_db
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-# Define onde o FastAPI deve buscar o token em rotas protegidas
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
-    
+# Define onde o FastAPI deve buscar o token JWT
+# Sempre que uma rota usar Depends(get_current_user),
+# o FastAPI vai procurar o token no header:
+#
+# Authorization: Bearer <token>
+#
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/auth/login"
+)
+
+
 async def get_current_user(
-    token: str = Depends(oauth2_scheme)
+    token: str = Depends(oauth2_scheme),
+    db: AsyncSession = Depends(get_db)
 ):
+    """
+    Recupera o usuário autenticado a partir do token JWT.
+
+    Fluxo:
+    1. Recebe o token enviado no header Authorization.
+    2. Decodifica o token.
+    3. Obtém o ID do usuário salvo no campo "sub".
+    4. Busca o usuário no banco.
+    5. Retorna o usuário autenticado.
+    """
+
     from app.users.models import User
-    from app.core.exceptions import UnauthorizedException
-    from app.database import get_db  # Importamos o get_db aqui para buscar a sessão
 
-    # Pegamos a sessão do banco de dados direto aqui dentro de forma limpa
-    db = None
-    async for session in get_db():
-        db = session
-        break
-
-    if db is None:
-        raise UnauthorizedException("Erro ao conectar ao banco de dados")
-
-    # Decoder do token original
+    # Decodifica o JWT
     payload = decode_token(token)
-    user_id: str = payload.get("sub")
-    
-    if user_id is None:
-        raise UnauthorizedException("Token inválido ou expirado")
 
-    # Busca o usuário no banco
-    query = select(User).where(User.id == int(user_id))
-    result = await db.execute(query)
+    # Recupera o ID do usuário armazenado no token
+    user_id = payload.get("sub")
+
+    # Se não existir "sub", o token é inválido
+    if user_id is None:
+        raise UnauthorizedException(
+            "Token inválido ou expirado"
+        )
+
+    # Busca o usuário diretamente usando a sessão
+    # recebida pelo sistema de dependências do FastAPI
+    result = await db.execute(
+        select(User).where(
+            User.id == int(user_id)
+        )
+    )
+
     user = result.scalar_one_or_none()
 
+    # Usuário não encontrado no banco
     if user is None:
-        raise UnauthorizedException("Usuário não encontrado")
+        raise UnauthorizedException(
+            "Usuário não encontrado"
+        )
 
+    # Retorna o usuário autenticado para a rota
     return user
