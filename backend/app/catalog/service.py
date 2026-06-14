@@ -9,7 +9,10 @@ from app.catalog.models import (
 )
 
 from sqlalchemy import select
-from app.catalog.schemas import ProductCreate
+from app.catalog.schemas import (
+    ProductCreate,
+    ProductUpdate
+)
 
 
 class CatalogService:
@@ -78,6 +81,130 @@ class CatalogService:
         await self.db.refresh(product)
 
         return await self.get_product_by_id(product.id)
+    
+    async def update_product(
+        self,
+        product_id: int,
+        data: ProductUpdate
+    ):
+        product = await self.db.get(
+            Product,
+            product_id
+        )
+
+        if not product:
+            raise HTTPException(
+                status_code=404,
+                detail="Produto não encontrado"
+            )
+
+        # VALIDAÇÃO DE SLUG DUPLICADO
+        if data.slug:
+
+            slug_exists = await self.db.execute(
+                select(Product).where(
+                    Product.slug == data.slug,
+                    Product.id != product_id
+                )
+            )
+
+            if slug_exists.scalar_one_or_none():
+                raise HTTPException(
+                    status_code=409,
+                    detail="Já existe um produto com este slug"
+                )
+
+        update_data = data.model_dump(
+            exclude_unset=True
+        )
+
+        # Atualiza campos simples
+        for field, value in update_data.items():
+
+            if field not in ["categories", "pricing"]:
+                setattr(
+                    product,
+                    field,
+                    value
+                )
+
+        # Atualiza categorias
+        if data.categories is not None:
+
+            await self.db.execute(
+                ProductCategory.__table__.delete().where(
+                    ProductCategory.product_id == product_id
+                )
+            )
+
+            for categoria_id in data.categories:
+
+                categoria = await self.db.get(
+                    Category,
+                    categoria_id
+                )
+
+                if not categoria:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"Categoria {categoria_id} não encontrada"
+                    )
+
+                self.db.add(
+                    ProductCategory(
+                        product_id=product_id,
+                        category_id=categoria_id
+                    )
+                )
+
+        # Atualiza preços
+        if data.pricing is not None:
+
+            await self.db.execute(
+                ProductPricing.__table__.delete().where(
+                    ProductPricing.product_id == product_id
+                )
+            )
+
+            for preco in data.pricing:
+
+                self.db.add(
+                    ProductPricing(
+                        product_id=product_id,
+                        days=preco.days,
+                        price=preco.price
+                    )
+                )
+
+        await self.db.commit()
+
+        return await self.get_product_by_id(
+            product_id
+        )
+    
+    async def update_product_status(
+        self,
+        product_id: int,
+        ativo: bool
+    ):
+        product = await self.db.get(
+            Product,
+            product_id
+        )
+
+        if not product:
+            raise HTTPException(
+                status_code=404,
+                detail="Produto não encontrado"
+            )
+
+        product.is_active = ativo
+
+        await self.db.commit()
+
+        return await self.get_product_by_id(
+            product_id
+        )
 
 
     async def get_products(self,

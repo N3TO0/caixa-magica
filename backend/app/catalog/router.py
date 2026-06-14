@@ -7,6 +7,8 @@ from datetime import date
 from typing import Optional
 from app.catalog.schemas import (
     ProductCreate,
+    ProductUpdate,
+    ProductStatusUpdate,
     ProductDetailOut
 )
 
@@ -65,6 +67,51 @@ async def create_product(
 
     return await service.create_product(data)
 
+@router.put(
+    "/admin/{product_id}",
+    response_model=ProductDetailOut
+)
+async def update_product(
+    product_id: int,
+    data: ProductUpdate,
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Apenas administradores podem realizar esta ação"
+        )
+
+    service = CatalogService(db)
+
+    return await service.update_product(
+        product_id,
+        data
+    )
+
+@router.patch(
+    "/admin/{product_id}/status",
+    response_model=ProductDetailOut
+)
+async def update_product_status(
+    product_id: int,
+    data: ProductStatusUpdate,
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Apenas administradores podem realizar esta ação"
+        )
+
+    service = CatalogService(db)
+
+    return await service.update_product_status(
+        product_id,
+        data.ativo
+    )
 
 @router.get("/{product_id}")
 async def get_product(
