@@ -8,11 +8,15 @@ from app.catalog.models import (
     ProductPricing
 )
 
-from sqlalchemy import select
+from sqlalchemy import (
+    select,
+    func
+)
 from app.catalog.schemas import (
     ProductCreate,
     ProductUpdate
 )
+from app.orders.models import Reservation
 
 
 class CatalogService:
@@ -207,11 +211,12 @@ class CatalogService:
         )
 
 
-    async def get_products(self,
-    categoria_id=None,
-    faixa_etaria=None,
-    start_date=None,
-    end_date=None
+    async def get_products(
+        self,
+        categoria_id=None,
+        faixa_etaria=None,
+        start_date=None,
+        end_date=None
     ):
         query = (
             select(Product)
@@ -240,10 +245,44 @@ class CatalogService:
                 Product.age_range == faixa_etaria
             )
 
+        # filtro disponibilidade
+        if start_date and end_date:
+
+            reservas_subquery = (
+                select(
+                    Reservation.product_id,
+                    func.count(Reservation.id).label(
+                        "reservas_ativas"
+                    )
+                )
+                .where(
+                    Reservation.period_start <= end_date,
+                    Reservation.period_end >= start_date,
+                    Reservation.status == "active"
+                )
+                .group_by(
+                    Reservation.product_id
+                )
+                .subquery()
+            )
+
+            query = (
+                query.outerjoin(
+                    reservas_subquery,
+                    Product.id == reservas_subquery.c.product_id
+                )
+                .where(
+                    Product.total_units >
+                    func.coalesce(
+                        reservas_subquery.c.reservas_ativas,
+                        0
+                    )
+                )
+            )
+
         result = await self.db.execute(query)
 
         return result.scalars().unique().all()
-
 
     async def get_product_by_id(self, product_id: int):
         result = await self.db.execute(
