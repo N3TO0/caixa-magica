@@ -23,7 +23,7 @@ const isMockEnabled = (key, defaultValue) => {
 export const USE_MOCKS = {
   products: isMockEnabled("PRODUCTS", false),
   categories: isMockEnabled("CATEGORIES", false),
-  auth: isMockEnabled("AUTH", true),
-  users: isMockEnabled("USERS", true),
+  auth: isMockEnabled("AUTH", false),
+  users: isMockEnabled("USERS", false),
   orders: isMockEnabled("ORDERS", false),
 };
