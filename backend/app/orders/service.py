@@ -150,5 +150,31 @@ class OrderService:
     ):
         raise NotImplementedError
 
-    async def check_availability(self, product_id: int, start: date, end: date):
-        raise NotImplementedError
+    async def check_availability(
+        self, product_id: int, start_date: date, end_date: date
+    ) -> dict:
+        product = await self.db.get(Product, product_id)
+        if product is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Produto não encontrado",
+            )
+
+        count_result = await self.db.execute(
+            select(func.count())
+            .select_from(Reservation)
+            .where(
+                Reservation.product_id == product_id,
+                Reservation.status == "active",
+                Reservation.period_start < end_date,
+                Reservation.period_end > start_date,
+            )
+        )
+        active_count = count_result.scalar_one()
+
+        unidades_livres = product.total_units - active_count
+        return {
+            "disponivel": unidades_livres > 0,
+            "unidades_livres": unidades_livres,
+            "total_unidades": product.total_units,
+        }
