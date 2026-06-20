@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,9 +32,16 @@ async def create_order(
     )
 
 
-@router.get("/disponibilidade/{product_id}", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def check_availability(product_id: int):
-    return {"detail": "Endpoint em desenvolvimento"}
+@router.get("/disponibilidade/{product_id}")
+async def check_availability(
+    product_id: int,
+    start_date: date,
+    end_date: date,
+    db: AsyncSession = Depends(get_db),
+):
+    service = OrderService(db)
+    result = await service.check_availability(product_id, start_date, end_date)
+    return success_response(data=result)
 
 
 @router.get("/{order_id}")
