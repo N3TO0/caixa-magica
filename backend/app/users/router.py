@@ -1,11 +1,11 @@
 from fastapi import APIRouter, status, Depends, Query
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_current_user 
 
 from app.database import get_db  
-from app.users.schemas import UserCreate, UserOut, LoginRequest, TokenOut, AddressCreate, AddressOut, OrderHistoryPaginatedResponse
+from app.users.schemas import UserCreate, UserOut, LoginRequest, TokenOut, AddressCreate, AddressOut, OrderHistoryPaginatedResponse,AddressOut
 from app.users.service import UserService
 # --------------------------------------------------------------------- import para utilizar o botão de autenticação do swagger:
 from fastapi.security import OAuth2PasswordRequestForm
@@ -115,3 +115,19 @@ async def add_address(
     )
     
     return new_address
+
+@users_router.get(
+    "/me/enderecos", 
+    status_code=status.HTTP_200_OK, 
+    response_model=List[AddressOut]
+)
+async def get_my_addresses(
+    current_user = Depends(get_current_user), 
+    db: AsyncSession = Depends(get_db)
+):
+    user_service = UserService(db)
+    
+    # Busca a lista ordenada
+    addresses = await user_service.get_user_addresses(user_id=current_user.id)
+    
+    return addresses

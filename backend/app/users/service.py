@@ -170,3 +170,20 @@ class UserService:
         await self.db.refresh(new_address)
 
         return new_address
+    
+    async def get_user_addresses(self, user_id: int):
+        from sqlalchemy import select
+        from app.users.models import Address
+
+        # Busca todos os endereços do usuário
+        # Ordena por is_default DESC para que o True (padrão) fique no topo da lista
+        query = (
+            select(Address)
+            .where(Address.user_id == user_id)
+            .order_by(Address.is_default.desc(), Address.id.asc())
+        )
+        
+        result = await self.db.execute(query)
+        addresses_list = result.scalars().all()
+
+        return addresses_list
