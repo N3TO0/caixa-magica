@@ -8,8 +8,6 @@ from app.core.security import hash_password, verify_password, create_access_toke
 from app.core.exceptions import ConflictException, UnauthorizedException
 from sqlalchemy.orm import selectinload
 
-          
-
 
 class UserService:
     def __init__(self, db: AsyncSession):
@@ -234,6 +232,59 @@ class UserService:
         return {
             "data": formatted_orders,
             "total_orders": total_orders,
+            "total_pages": total_pages,
+            "page": page,
+            "limit": limit
+        }
+    async def get_all_customers_admin(self, page: int = 1, limit: int = 10):
+
+        if page < 1: page = 1
+        if limit < 1: limit = 10
+        offset = (page - 1) * limit
+
+        # 1. Conta o total de clientes ativos (role='customer' e não deletados)
+        count_stmt = select(func.count(User.id)).where(
+            User.role == "customer",
+            User.deleted_at.is_(None)
+        )
+        total_result = await self.db.execute(count_stmt)
+        total_users = total_result.scalar() or 0
+
+        # 2. Busca os usuários e faz um LEFT JOIN com a tabela de pedidos agrupando por ID
+        select_stmt = (
+            select(User, func.count(Order.id).label("total_orders"))
+            .join(Order, Order.user_id == User.id, isouter=True)
+            .where(
+                User.role == "customer",
+                User.deleted_at.is_(None)
+            )
+            .group_by(User.id)
+            .offset(offset)
+            .limit(limit)
+        )
+        
+        users_result = await self.db.execute(select_stmt)
+        rows = users_result.all()
+
+        # 3. Formata a lista de saída conforme o Schema
+        from app.users.schemas import AdminUserListResponse
+        formatted_users = [
+            AdminUserListResponse(
+                id=user.id,
+                name=user.name,
+                email=user.email,
+                phone=user.phone,
+                total_orders=total_orders,
+                created_at=user.created_at
+            )
+            for user, total_orders in rows
+        ]
+
+        total_pages = ceil(total_users / limit) if total_users > 0 else 1
+
+        return {
+            "data": formatted_users,
+            "total_users": total_users,
             "total_pages": total_pages,
             "page": page,
             "limit": limit

@@ -1,6 +1,5 @@
 from datetime import datetime
-from typing import Optional
-
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -90,6 +89,26 @@ class AdminOrderPaginatedResponse(BaseModel):
     success: bool
     data: List[AdminOrderResponse]
     total_orders: int
+    total_pages: int
+    page: int
+    limit: int
+    message: str
+
+class AdminUserListResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    phone: Optional[str] = None
+    total_orders: int  
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class AdminUserPaginatedResponse(BaseModel):
+    success: bool
+    data: List[AdminUserListResponse]
+    total_users: int
     total_pages: int
     page: int
     limit: int

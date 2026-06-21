@@ -1,14 +1,15 @@
 from fastapi import APIRouter, status, Depends, Query, HTTPException
 from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.security import get_current_user 
 
 from app.database import get_db  
-from app.users.schemas import UserCreate, UserOut, LoginRequest, TokenOut, AddressCreate, AddressOut, OrderHistoryPaginatedResponse, AddressOut, AdminOrderPaginatedResponse
+from app.users.schemas import UserCreate, AdminUserPaginatedResponse, UserOut, LoginRequest, TokenOut, AddressCreate, AddressOut, OrderHistoryPaginatedResponse, AddressOut, AdminOrderPaginatedResponse
 from app.users.service import UserService
 # --------------------------------------------------------------------- import para utilizar o botão de autenticação do swagger:
-from fastapi.security import OAuth2PasswordRequestForm
+
 
 auth_router = APIRouter(prefix="/auth", tags=["Usuários"])
 users_router = APIRouter(prefix="/usuarios", tags=["Usuários"])
@@ -125,7 +126,7 @@ async def add_address(
 ):
     user_service = UserService(db)
     
-    # Vincula o endereço ao id do usuário do token e salva
+    #Vincula o endereço ao id do usuário do token e salva
     new_address = await user_service.add_address(
         user_id=current_user.id, 
         data=data
@@ -144,7 +145,7 @@ async def get_my_addresses(
 ):
     user_service = UserService(db)
     
-    # Busca a lista ordenada
+    #Busca a lista ordenada
     addresses = await user_service.get_user_addresses(user_id=current_user.id)
     
     return addresses
@@ -161,7 +162,7 @@ async def get_all_orders_admin(
     current_user = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    # Regra de Negócio: Bloqueia se o usuário não for Administrador (Item 3 do PDF)
+    #Bloqueia se o usuário não for Administrador
     if current_user.role != "admin":
         raise HTTPException(
             status_code=403,
@@ -170,7 +171,7 @@ async def get_all_orders_admin(
         
     user_service = UserService(db)
     
-    # Busca todos os pedidos com os filtros aplicados
+    #Busca todos os pedidos com os filtros aplicados
     result = await user_service.get_all_orders_admin(
         page=page, 
         limit=limit, 
@@ -181,6 +182,41 @@ async def get_all_orders_admin(
         success=True,
         data=result["data"],
         total_orders=result["total_orders"],
+        total_pages=result["total_pages"],
+        page=result["page"],
+        limit=result["limit"],
+        message="ok"
+    )
+
+
+@users_router.get(
+    "/admin/usuarios", 
+    status_code=status.HTTP_200_OK, 
+    response_model=AdminUserPaginatedResponse
+)
+async def get_all_customers_admin(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1),
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    #Desempacota a tupla se o seu sistema retornar o token junto do usuário
+    user_obj = current_user[0] if isinstance(current_user, tuple) else current_user
+
+    #Se não for admin, retorna 403 puro (sem status.HTTP_ para evitar incompatibilidade)
+    if user_obj.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado. Esta rota é exclusiva para administradores."
+        )
+        
+    user_service = UserService(db)
+    result = await user_service.get_all_customers_admin(page=page, limit=limit)
+    
+    return AdminUserPaginatedResponse(
+        success=True,
+        data=result["data"],
+        total_users=result["total_users"],
         total_pages=result["total_pages"],
         page=result["page"],
         limit=result["limit"],
