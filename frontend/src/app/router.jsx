@@ -17,6 +17,9 @@ import ProductsPage from "@/features/products/pages/ProductsPage";
 import SearchPage from "@/features/search/pages/SearchPage";
 import CartPage from "@/features/cart/pages/CartPage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
+import AdminPedidoPage from "@/features/admin/AdminPedidoPage";
+import AdminPedidosPage from "@/features/admin/AdminPedidosPage";
+import AdminUsuariosPage from "@/features/admin/AdminUsuariosPage";
 
 export default function AppRouter() {
   return (
@@ -39,6 +42,9 @@ export default function AppRouter() {
       <Route path="/pedidos/:id" element={<OrderDetailPage />} />
       <Route path="/carrinho" element={<CartPage />} />
       <Route path="/recuperacao-senha" element={<ForgotPasswordPage />} />
+      <Route path="/admin/pedido/:id:/status" element={<AdminPedidoPage />} /> 
+      <Route path="/admin/pedidos" element={<AdminPedidosPage />} />
+      <Route path="/admin/usuarios" element={<AdminUsuariosPage />} />
     </Routes>
   );
 }

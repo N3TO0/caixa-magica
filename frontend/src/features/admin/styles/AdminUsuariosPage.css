@@ -1,0 +1,104 @@
+.admin-usuarios-page {
+  width: 100%;
+  padding: 24px 0;
+  background: #f6f7fb;
+}
+
+
+.admin-container {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* TOOLBAR PADRÃO */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+
+.search-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  height: 48px;
+  padding: 0 16px;
+
+  border-radius: 999px;
+  border: 1px solid #dfe3e8;
+  background: white;
+
+  min-width: 0;
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+}
+
+.search-icon {
+  font-size: 20px;
+  color: #94a3b8;
+}
+
+/* GRID */
+.usuarios-grid {
+  display: grid;
+  gap: 16px;
+}
+
+/* CARD */
+.usuario-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.usuario-info h3 {
+  margin: 0 0 8px;
+  color: var(--blue-dark);
+}
+
+.usuario-info p {
+  margin: 4px 0;
+  color: #555;
+}
+
+/* AÇÕES */
+.usuario-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* BOTÃO PADRÃO */
+.btn-action {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #f59e0b;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* LOADING */
+.loading {
+  text-align: center;
+  padding: 40px;
+}
