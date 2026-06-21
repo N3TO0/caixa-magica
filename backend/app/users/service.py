@@ -1,4 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from math import ceil
+from sqlalchemy import select, func, update
+from sqlalchemy.orm import joinedload
+from app.orders.models import Order
+from app.users.models import User, Address
+from app.core.security import hash_password, verify_password, create_access_token
+from app.core.exceptions import ConflictException, UnauthorizedException
+from sqlalchemy.orm import selectinload
+
+          
 
 
 class UserService:
@@ -6,10 +16,6 @@ class UserService:
         self.db = db
 
     async def register(self, data):
-        from sqlalchemy import select
-        from app.core.security import hash_password
-        from app.core.exceptions import ConflictException
-        from app.users.models import User
 
         # 1. Verificar se já existe um usuário com esse email
         query = select(User).where(User.email == data.email)
@@ -43,10 +49,7 @@ class UserService:
         return new_user
 
     async def authenticate(self, data):
-        from sqlalchemy import select
-        from app.core.security import verify_password, create_access_token
-        from app.core.exceptions import UnauthorizedException
-        from app.users.models import User
+        
 
         # 1. Buscar o usuário pelo e-mail enviado
         query = select(User).where(User.email == data.email)
@@ -82,10 +85,7 @@ class UserService:
         raise NotImplementedError
 
     async def get_user_orders(self, user_id: int, page: int = 1, limit: int = 10):
-        from math import ceil
-        from sqlalchemy import select, func
-        from sqlalchemy.orm import selectinload
-        from app.orders.models import Order
+        
 
         if page < 1:
             page = 1
@@ -138,8 +138,7 @@ class UserService:
         }
 
     async def add_address(self, user_id: int, data):
-        from sqlalchemy import update, select
-        from app.users.models import Address
+        
 
         # Se o novo endereço for o padrão, desmarca todos os outros do usuário primeiro
         if data.is_default:
@@ -172,8 +171,7 @@ class UserService:
         return new_address
     
     async def get_user_addresses(self, user_id: int):
-        from sqlalchemy import select
-        from app.users.models import Address
+        
 
         # Busca todos os endereços do usuário
         # Ordena por is_default DESC para que o True (padrão) fique no topo da lista
@@ -187,3 +185,56 @@ class UserService:
         addresses_list = result.scalars().all()
 
         return addresses_list
+    
+    async def get_all_orders_admin(self, page: int = 1, limit: int = 10, status_filter: str = None):
+
+        if page < 1: page = 1
+        if limit < 1: limit = 10
+        offset = (page - 1) * limit
+
+        # 1. Base da query para contagem e listagem (filtrando soft delete)
+        count_stmt = select(func.count(Order.id)).where(Order.deleted_at.is_(None))
+        select_stmt = (
+            select(Order)
+            .where(Order.deleted_at.is_(None))
+            .options(joinedload(Order.user)) # Carrega o relacionamento com o cliente
+            .order_by(Order.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+
+        # 2. Se o admin passou um status para filtrar, aplica nas duas queries
+        if status_filter:
+            count_stmt = count_stmt.where(Order.status == status_filter)
+            select_stmt = select_stmt.where(Order.status == status_filter)
+
+        # 3. Executa a contagem total
+        total_result = await self.db.execute(count_stmt)
+        total_orders = total_result.scalar() or 0
+
+        # 4. Executa a busca dos pedidos
+        orders_result = await self.db.execute(select_stmt)
+        orders_list = orders_result.scalars().all()
+
+        # 5. Formata a resposta mapeando o nome do cliente vindo da relação Order.user
+        from app.users.schemas import AdminOrderResponse
+        formatted_orders = [
+            AdminOrderResponse(
+                id=order.id,
+                client_name=order.user.name if order.user else "Cliente Desconhecido",
+                status=order.status,
+                total_amount=order.total_amount,
+                created_at=order.created_at
+            )
+            for order in orders_list
+        ]
+
+        total_pages = ceil(total_orders / limit) if total_orders > 0 else 1
+
+        return {
+            "data": formatted_orders,
+            "total_orders": total_orders,
+            "total_pages": total_pages,
+            "page": page,
+            "limit": limit
+        }
