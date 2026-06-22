@@ -146,9 +146,57 @@ class OrderService:
         return order
 
     async def update_status(
-        self, order_id: int, new_status: str, changed_by: int | None = None
-    ):
-        raise NotImplementedError
+        self,
+        order_id: int,
+        novo_status: str,
+        observacao: str | None,
+        admin_user_id: int,
+    ) -> Order:
+        TRANSICOES_VALIDAS = {
+            "pendente": ["confirmado", "cancelado"],
+            "confirmado": ["em_uso", "cancelado"],
+            "em_uso": ["devolvido", "atrasado"],
+            "atrasado": ["devolvido"],
+            "devolvido": ["finalizado"],
+        }
+
+        try:
+            order = await self.db.get(Order, order_id)
+            if order is None or order.deleted_at is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Pedido não encontrado",
+                )
+
+            status_atual = order.status
+            if (
+                status_atual not in TRANSICOES_VALIDAS
+                or novo_status not in TRANSICOES_VALIDAS[status_atual]
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Transição de '{status_atual}' para '{novo_status}' não é permitida",
+                )
+
+            previous_status = order.status
+            order.status = novo_status
+            order.updated_at = datetime.now(UTC)
+
+            history = OrderStatusHistory(
+                order_id=order.id,
+                previous_status=previous_status,
+                new_status=novo_status,
+                changed_by=admin_user_id,
+                note=observacao,
+            )
+            self.db.add(history)
+
+            await self.db.commit()
+            await self.db.refresh(order)
+            return order
+        except Exception:
+            await self.db.rollback()
+            raise
 
     async def check_availability(
         self, product_id: int, start_date: date, end_date: date

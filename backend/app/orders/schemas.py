@@ -49,3 +49,8 @@ class OrderOut(BaseModel):
 
 class OrderDetailOut(OrderOut):
     pass
+
+
+class OrderStatusUpdate(BaseModel):
+    novo_status: str
+    observacao: Optional[str] = None
