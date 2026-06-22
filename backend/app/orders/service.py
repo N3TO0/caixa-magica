@@ -198,6 +198,49 @@ class OrderService:
             await self.db.rollback()
             raise
 
+    async def expire_pending_orders(self) -> dict:
+        try:
+            now = datetime.now(UTC)
+            result = await self.db.execute(
+                select(Order).where(
+                    Order.status == "pendente",
+                    Order.expires_at < now,
+                    Order.deleted_at.is_(None),
+                )
+            )
+            expired_orders = result.scalars().all()
+
+            for order in expired_orders:
+                order.status = "cancelado"
+                order.updated_at = now
+
+                history = OrderStatusHistory(
+                    order_id=order.id,
+                    previous_status="pendente",
+                    new_status="cancelado",
+                    changed_by=None,
+                    note="Cancelado automaticamente por expiração",
+                )
+                self.db.add(history)
+
+                reservations_result = await self.db.execute(
+                    select(Reservation).where(
+                        Reservation.order_item_id.in_(
+                            select(OrderItem.id).where(
+                                OrderItem.order_id == order.id
+                            )
+                        )
+                    )
+                )
+                for reservation in reservations_result.scalars().all():
+                    reservation.status = "cancelled"
+
+            await self.db.commit()
+            return {"cancelados": len(expired_orders)}
+        except Exception:
+            await self.db.rollback()
+            raise
+
     async def check_availability(
         self, product_id: int, start_date: date, end_date: date
     ) -> dict:

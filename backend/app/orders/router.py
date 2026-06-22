@@ -103,3 +103,21 @@ async def update_order_status(
         order_id, data.novo_status, data.observacao, current_user.id
     )
     return success_response(data={"id": order.id, "status": order.status})
+
+
+@router.post("/admin/expirar")
+async def expire_orders(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Acesso negado"
+        )
+
+    service = OrderService(db)
+    result = await service.expire_pending_orders()
+    return success_response(
+        data=result,
+        message=f"{result['cancelados']} pedido(s) expirado(s)",
+    )
