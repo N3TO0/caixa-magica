@@ -1,12 +1,12 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.responses import success_response
 from app.core.security import get_current_user
 from app.database import get_db
-from app.orders.schemas import OrderCreate
+from app.orders.schemas import OrderCreate, OrderStatusUpdate
 from app.orders.service import OrderService
 from app.users.models import User
 
@@ -86,6 +86,20 @@ async def get_order(
     )
 
 
-@router.patch("/{order_id}/status", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def update_order_status(order_id: int):
-    return {"detail": "Endpoint em desenvolvimento"}
+@router.patch("/{order_id}/status")
+async def update_order_status(
+    order_id: int,
+    data: OrderStatusUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Acesso negado"
+        )
+
+    service = OrderService(db)
+    order = await service.update_status(
+        order_id, data.novo_status, data.observacao, current_user.id
+    )
+    return success_response(data={"id": order.id, "status": order.status})
