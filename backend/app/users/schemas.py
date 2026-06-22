@@ -51,3 +51,26 @@ class AddressOut(AddressCreate):
 
     id: int
     user_id: int
+
+
+# ---------------------------------------------------------------
+from decimal import Decimal
+from typing import List
+
+class OrderHistoryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    status: str
+    total_amount: Decimal  # Lembre de importar 'from decimal import Decimal' no topo se não tiver
+    created_at: datetime
+    items_count: int
+
+class OrderHistoryPaginatedResponse(BaseModel):
+    success: bool = True
+    data: List[OrderHistoryResponse]  # Lembre de importar 'from typing import List' no topo
+    total_orders: int
+    total_pages: int
+    page: int
+    limit: int
+    message: str = "ok"

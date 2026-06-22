@@ -1,15 +1,17 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Query
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.users.schemas import UserOut
-
-from app.core.security import get_current_user # E garanta que o get_current_user está importado
-
-from app.database import get_db  # Ajuste o import se o arquivo de sessão tiver outro nome
+from app.users.schemas import OrderHistoryPaginatedResponse
+from app.core.security import get_current_user
+from app.database import get_db 
 from app.users.schemas import UserCreate, UserOut
 from app.users.service import UserService
 from app.users.schemas import LoginRequest, TokenOut
 
+# --------------------------------------------------------------------- import para utilizar o botão de autenticação do swagger:
+from fastapi.security import OAuth2PasswordRequestForm
+from app.users.schemas import LoginRequest
 
 auth_router = APIRouter(prefix="/auth", tags=["Usuários"])
 users_router = APIRouter(prefix="/usuarios", tags=["Usuários"])
@@ -37,7 +39,39 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
 async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):  # <- Mudou aqui
     user_service = UserService(db)
     
-    # Executa a autenticação e gera o token
+    token_response = await user_service.authenticate(data)
+    
+    return token_response
+
+@auth_router.post(
+    "/login-swagger", 
+    response_model=TokenOut, 
+    status_code=status.HTTP_200_OK,
+    include_in_schema=True 
+)
+async def login_swagger(
+    form_data: OAuth2PasswordRequestForm = Depends(), 
+    db: AsyncSession = Depends(get_db)
+):
+    user_service = UserService(db)
+    
+    data = LoginRequest(
+        email=form_data.username, 
+        password=form_data.password
+    )
+    
+    token_response = await user_service.authenticate(data)
+    
+    return token_response
+
+@auth_router.post(
+    "/login", 
+    response_model=TokenOut, 
+    status_code=status.HTTP_200_OK
+)
+async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):  # <- Mudou aqui
+    user_service = UserService(db)
+    
     token_response = await user_service.authenticate(data)
     
     return token_response
@@ -48,9 +82,34 @@ async def get_me(current_user = Depends(get_current_user)):
     return current_user
 
 
-@users_router.get("/me/pedidos", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def get_my_orders():
-    return {"detail": "Endpoint em desenvolvimento"}
+@users_router.get(
+    "/me/pedidos", 
+    status_code=status.HTTP_200_OK, 
+    response_model=OrderHistoryPaginatedResponse
+)
+async def get_my_orders(
+    page: int = Query(1, ge=1, description="Número da página"),
+    limit: int = Query(10, ge=1, description="Itens por página"),
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    user_service = UserService(db)
+    
+    result = await user_service.get_user_orders(
+        user_id=current_user.id, # Pega o ID do usuário autenticado no JWT [cite: 122]
+        page=page,
+        limit=limit
+    )
+    
+    return OrderHistoryPaginatedResponse(
+        success=True,
+        data=result["data"],
+        total_orders=result["total_orders"],
+        total_pages=result["total_pages"],
+        page=result["page"],
+        limit=result["limit"],
+        message="ok"
+    )
 
 
 @users_router.post("/me/enderecos", status_code=status.HTTP_501_NOT_IMPLEMENTED)

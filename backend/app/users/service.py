@@ -85,6 +85,58 @@ class UserService:
         # TODO: implementar cadastro de endereço do usuário
         raise NotImplementedError
 
-    async def get_user_orders(self, user_id: int):
-        # TODO: implementar listagem de pedidos do usuário
-        raise NotImplementedError
+    async def get_user_orders(self, user_id: int, page: int = 1, limit: int = 10):
+        from math import ceil
+        from sqlalchemy import select, func
+        from sqlalchemy.orm import selectinload
+        from app.orders.models import Order
+
+        if page < 1:
+            page = 1
+        if limit < 1:
+            limit = 10
+            
+        offset = (page - 1) * limit
+
+        # 1. Conta o total de pedidos do usuário (excluindo soft delete) [cite: 122, 126]
+        count_query = select(func.count(Order.id)).where(
+            Order.user_id == user_id,
+            Order.deleted_at.is_(None)
+        )
+        total_result = await self.db.execute(count_query)
+        total_orders = total_result.scalar() or 0
+
+        # 2. Busca os pedidos trazendo os itens pré-carregados (evita lazy loading) [cite: 122, 123, 124, 125]
+        orders_query = (
+            select(Order)
+            .where(Order.user_id == user_id, Order.deleted_at.is_(None))
+            .options(selectinload(Order.items))
+            .order_by(Order.created_at.desc())  # Mais recente primeiro [cite: 123]
+            .offset(offset)
+            .limit(limit)
+        )
+        orders_result = await self.db.execute(orders_query)
+        orders_list = orders_result.scalars().all()
+
+        # 3. Formata os dados injetando a contagem de itens [cite: 125]
+        from app.users.schemas import OrderHistoryResponse
+        formatted_orders = [
+            OrderHistoryResponse(
+                id=order.id,
+                status=order.status,
+                total_amount=order.total_amount,
+                created_at=order.created_at,
+                items_count=len(order.items)
+            )
+            for order in orders_list
+        ]
+
+        total_pages = ceil(total_orders / limit) if total_orders > 0 else 1 
+
+        return {
+            "data": formatted_orders,
+            "total_orders": total_orders,
+            "total_pages": total_pages,
+            "page": page,
+            "limit": limit
+        }
