@@ -81,10 +81,6 @@ class UserService:
         # TODO: implementar busca por id
         raise NotImplementedError
 
-    async def add_address(self, user_id: int, data):
-        # TODO: implementar cadastro de endereço do usuário
-        raise NotImplementedError
-
     async def get_user_orders(self, user_id: int, page: int = 1, limit: int = 10):
         from math import ceil
         from sqlalchemy import select, func
@@ -140,3 +136,37 @@ class UserService:
             "page": page,
             "limit": limit
         }
+
+    async def add_address(self, user_id: int, data):
+        from sqlalchemy import update, select
+        from app.users.models import Address
+
+        # Se o novo endereço for o padrão, desmarca todos os outros do usuário primeiro
+        if data.is_default:
+            stmt = (
+                update(Address)
+                .where(Address.user_id == user_id, Address.is_default == True)
+                .values(is_default=False)
+            )
+            await self.db.execute(stmt)
+
+        # Cria o novo objeto de endereço mapeando os campos do Pydantic
+        new_address = Address(
+            user_id=user_id,
+            label=data.label,
+            zip_code=data.zip_code,
+            street=data.street,
+            number=data.number,
+            complement=data.complement,
+            neighborhood=data.neighborhood,
+            city=data.city,
+            state=data.state,
+            is_default=data.is_default
+        )
+
+        # Salva no PostgreSQL
+        self.db.add(new_address)
+        await self.db.commit()
+        await self.db.refresh(new_address)
+
+        return new_address
