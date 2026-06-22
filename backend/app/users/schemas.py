@@ -1,6 +1,5 @@
 from datetime import datetime
-from typing import Optional
-
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -10,6 +9,7 @@ class UserCreate(BaseModel):
     password: str = Field(..., min_length=6, max_length=72)
     phone: Optional[str] = None
     cpf: Optional[str] = None
+
 
 
 class UserOut(BaseModel):
@@ -62,15 +62,54 @@ class OrderHistoryResponse(BaseModel):
 
     id: int
     status: str
-    total_amount: Decimal  # Lembre de importar 'from decimal import Decimal' no topo se não tiver
+    total_amount: Decimal  
     created_at: datetime
     items_count: int
 
 class OrderHistoryPaginatedResponse(BaseModel):
     success: bool = True
-    data: List[OrderHistoryResponse]  # Lembre de importar 'from typing import List' no topo
+    data: List[OrderHistoryResponse]  
     total_orders: int
     total_pages: int
     page: int
     limit: int
     message: str = "ok"
+
+class AdminOrderResponse(BaseModel):
+    id: int
+    client_name: str  
+    status: str
+    total_amount: float
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class AdminOrderPaginatedResponse(BaseModel):
+    success: bool
+    data: List[AdminOrderResponse]
+    total_orders: int
+    total_pages: int
+    page: int
+    limit: int
+    message: str
+
+class AdminUserListResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    phone: Optional[str] = None
+    total_orders: int  
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class AdminUserPaginatedResponse(BaseModel):
+    success: bool
+    data: List[AdminUserListResponse]
+    total_users: int
+    total_pages: int
+    page: int
+    limit: int
+    message: str

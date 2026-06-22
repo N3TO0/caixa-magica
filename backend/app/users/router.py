@@ -1,14 +1,15 @@
-from fastapi import APIRouter, status, Depends, Query
-from typing import Optional
+from fastapi import APIRouter, status, Depends, Query, HTTPException
+from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.security import get_current_user 
 
 from app.database import get_db  
-from app.users.schemas import UserCreate, UserOut, LoginRequest, TokenOut, AddressCreate, AddressOut, OrderHistoryPaginatedResponse
+from app.users.schemas import UserCreate, AdminUserPaginatedResponse, UserOut, LoginRequest, TokenOut, AddressCreate, AddressOut, OrderHistoryPaginatedResponse, AddressOut, AdminOrderPaginatedResponse
 from app.users.service import UserService
 # --------------------------------------------------------------------- import para utilizar o botão de autenticação do swagger:
-from fastapi.security import OAuth2PasswordRequestForm
+
 
 auth_router = APIRouter(prefix="/auth", tags=["Usuários"])
 users_router = APIRouter(prefix="/usuarios", tags=["Usuários"])
@@ -25,6 +26,23 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
     
     # Executa a lógica de cadastro e guarda o usuário retornado
     new_user = await user_service.register(data)
+    
+    return new_user
+
+@auth_router.post(
+    "/admin/register-admin", 
+    response_model=UserOut, 
+    status_code=status.HTTP_201_CREATED
+)
+async def register_admin_master(data: UserCreate, db: AsyncSession = Depends(get_db)):
+    user_service = UserService(db)
+    
+    new_user = await user_service.register(data)
+    
+    new_user.role = "admin"
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
     
     return new_user
 
@@ -108,10 +126,99 @@ async def add_address(
 ):
     user_service = UserService(db)
     
-    # Vincula o endereço ao id do usuário do token e salva
+    #Vincula o endereço ao id do usuário do token e salva
     new_address = await user_service.add_address(
         user_id=current_user.id, 
         data=data
     )
     
     return new_address
+
+@users_router.get(
+    "/me/enderecos", 
+    status_code=status.HTTP_200_OK, 
+    response_model=List[AddressOut]
+)
+async def get_my_addresses(
+    current_user = Depends(get_current_user), 
+    db: AsyncSession = Depends(get_db)
+):
+    user_service = UserService(db)
+    
+    #Busca a lista ordenada
+    addresses = await user_service.get_user_addresses(user_id=current_user.id)
+    
+    return addresses
+
+@users_router.get(
+    "/admin/pedidos", 
+    status_code=status.HTTP_200_OK, 
+    response_model=AdminOrderPaginatedResponse
+)
+async def get_all_orders_admin(
+    page: int = Query(1, ge=1, description="Número da página"),
+    limit: int = Query(10, ge=1, description="Itens por página"),
+    status: Optional[str] = Query(None, description="Filtrar por status do pedido"),
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    #Bloqueia se o usuário não for Administrador
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado. Esta rota é exclusiva para administradores."
+        )
+        
+    user_service = UserService(db)
+    
+    #Busca todos os pedidos com os filtros aplicados
+    result = await user_service.get_all_orders_admin(
+        page=page, 
+        limit=limit, 
+        status_filter=status
+    )
+    
+    return AdminOrderPaginatedResponse(
+        success=True,
+        data=result["data"],
+        total_orders=result["total_orders"],
+        total_pages=result["total_pages"],
+        page=result["page"],
+        limit=result["limit"],
+        message="ok"
+    )
+
+
+@users_router.get(
+    "/admin/usuarios", 
+    status_code=status.HTTP_200_OK, 
+    response_model=AdminUserPaginatedResponse
+)
+async def get_all_customers_admin(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1),
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    #Desempacota a tupla se o seu sistema retornar o token junto do usuário
+    user_obj = current_user[0] if isinstance(current_user, tuple) else current_user
+
+    #Se não for admin, retorna 403 puro (sem status.HTTP_ para evitar incompatibilidade)
+    if user_obj.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado. Esta rota é exclusiva para administradores."
+        )
+        
+    user_service = UserService(db)
+    result = await user_service.get_all_customers_admin(page=page, limit=limit)
+    
+    return AdminUserPaginatedResponse(
+        success=True,
+        data=result["data"],
+        total_users=result["total_users"],
+        total_pages=result["total_pages"],
+        page=result["page"],
+        limit=result["limit"],
+        message="ok"
+    )
