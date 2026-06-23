@@ -7,6 +7,7 @@ import { addDays, getTodayISO } from "@/shared/utils/dateUtils";
 import { formatCurrency } from "@/shared/utils/moneyUtils";
 import { useCart } from "@/features/cart/hooks/useCart";
 import { useFavorites } from "@/features/favorites/hooks/useFavorites";
+import { checkProductAvailability } from "@/features/checkout/api/availabilityApi";
 import { useProductDetail } from "../hooks/useProductDetail";
 import "../styles/ProductDetailPage.css";
 
@@ -18,6 +19,7 @@ function ProductDetailPage() {
   const [days, setDays] = useState(7);
   const [startDate, setStartDate] = useState(getTodayISO());
   const [formError, setFormError] = useState("");
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
 
   const { addToCart } = useCart();
   const { toggleFavorite } = useFavorites();
@@ -32,11 +34,18 @@ function ProductDetailPage() {
   const selectedPricing = activePricing.find(item => item.days === Number(days));
   const endDate = useMemo(() => addDays(startDate, days), [days, startDate]);
 
+  useEffect(() => {
+    if (activePricing.length > 0 && !selectedPricing) {
+      setDays(activePricing[0].days);
+    }
+  }, [activePricing, selectedPricing]);
+
   function buildCartItem() {
     return {
       product_id: product.id,
       name: product.name,
       image_url: product.images?.[0]?.url,
+      quantity: 1,
       days: Number(days),
       start_date: startDate,
       end_date: endDate,
@@ -44,7 +53,21 @@ function ProductDetailPage() {
     };
   }
 
-  function handleAddToCart() {
+  async function validateAvailability() {
+    const response = await checkProductAvailability(product.id, {
+      startDate,
+      endDate,
+    });
+
+    if (!response.data?.disponivel) {
+      setFormError("Produto indisponível para o período selecionado.");
+      return false;
+    }
+
+    return true;
+  }
+
+  async function handleAddToCart() {
     setFormError("");
 
     if (!startDate) {
@@ -57,12 +80,25 @@ function ProductDetailPage() {
       return false;
     }
 
-    addToCart(buildCartItem());
-    return true;
+    try {
+      setCheckingAvailability(true);
+
+      if (!(await validateAvailability())) {
+        return false;
+      }
+
+      addToCart(buildCartItem());
+      return true;
+    } catch (err) {
+      setFormError(err.message || "Não foi possível verificar a disponibilidade.");
+      return false;
+    } finally {
+      setCheckingAvailability(false);
+    }
   }
 
-  function handleRentNow() {
-    if (handleAddToCart()) {
+  async function handleRentNow() {
+    if (await handleAddToCart()) {
       navigate("/checkout");
     }
   }
@@ -79,7 +115,7 @@ function ProductDetailPage() {
       <div className="produto-topo">
 
         <div className="galeria">
-          <img src={product.images?.[0]?.url} alt={product.name} />
+          <img src={product.images?.[0]?.url || "https://via.placeholder.com/600x400?text=Caixa+Magica"} alt={product.name} />
         </div>
 
         <div className="info">
@@ -121,9 +157,11 @@ function ProductDetailPage() {
           {formError && <p className="produto-form-error">{formError}</p>}
 
           <div className="acoes">
-            <button onClick={handleAddToCart}>Carrinho</button>
+            <button onClick={handleAddToCart} disabled={checkingAvailability}>
+              {checkingAvailability ? "Verificando..." : "Carrinho"}
+            </button>
             <button onClick={() => toggleFavorite(product)}>Favorito</button>
-            <button onClick={handleRentNow}>Alugar</button>
+            <button onClick={handleRentNow} disabled={checkingAvailability}>Alugar</button>
           </div>
 
         </div>

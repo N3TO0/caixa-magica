@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ErrorMessage from "@/shared/components/ErrorMessage";
 import Hero from "@/shared/components/Hero";
@@ -7,6 +7,8 @@ import { getCartTotal } from "@/features/cart/utils/cartTotals";
 import { formatCurrency } from "@/shared/utils/moneyUtils";
 import { useCheckout } from "../hooks/useCheckout";
 import { buildOrderPayload } from "../utils/orderPayload";
+import { createAddress, getMyAddresses } from "@/features/account/api/addressApi";
+import { checkProductAvailability } from "../api/availabilityApi";
 import "../styles/CheckoutPage.css";
 
 const initialForm = {
@@ -26,10 +28,11 @@ const initialForm = {
   neighborhood: "",
   city: "",
   state: "",
+  selected_address_id: "",
 
   // Pedido
   delivery_type: "pickup",
-  payment_type: "pix",
+  payment_type: "pending",
   notes: "",
 
   // Criança (opcional)
@@ -43,6 +46,7 @@ const initialForm = {
 export default function CheckoutPage() {
   const [form, setForm] = useState(initialForm);
   const [inlineError, setInlineError] = useState("");
+  const [addresses, setAddresses] = useState([]);
 
   const { cartItems, clearCart, removeFromCart } = useCart();
   const { error, loading, submitOrder } = useCheckout();
@@ -50,6 +54,25 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
 
   const total = getCartTotal(cartItems);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadAddresses() {
+      try {
+        const data = await getMyAddresses();
+        if (active) setAddresses(Array.isArray(data) ? data : []);
+      } catch {
+        if (active) setAddresses([]);
+      }
+    }
+
+    loadAddresses();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function updateForm(field, value) {
     setForm((prev) => ({
@@ -78,9 +101,43 @@ export default function CheckoutPage() {
     }
 
     try {
+      for (const item of cartItems) {
+        const availability = await checkProductAvailability(item.product_id, {
+          startDate: item.start_date,
+          endDate: item.end_date,
+        });
+
+        if (!availability.data?.disponivel || Number(availability.data?.unidades_livres || 0) < Number(item.quantity || 1)) {
+          setInlineError(`${item.name} não está disponível no período selecionado.`);
+          return;
+        }
+      }
+
+      let addressId = null;
+
+      if (form.delivery_type === "delivery") {
+        if (form.selected_address_id) {
+          addressId = Number(form.selected_address_id);
+        } else {
+          const address = await createAddress({
+            zip_code: form.zip_code,
+            street: form.street,
+            number: form.number,
+            complement: form.complement || null,
+            neighborhood: form.neighborhood,
+            city: form.city,
+            state: form.state,
+            label: "Entrega",
+            is_default: false,
+          });
+
+          addressId = address.id;
+        }
+      }
+
       const payload = buildOrderPayload({
         cartItems,
-        form,
+        form: { ...form, address_id: addressId },
       });
 
       const response = await submitOrder(payload);
@@ -94,9 +151,7 @@ export default function CheckoutPage() {
         }
       );
     } catch (err) {
-      if (err.status === 400) {
-        setInlineError(err.message);
-      }
+      setInlineError(err.message || "Não foi possível finalizar a solicitação.");
     }
   }
 
@@ -191,6 +246,7 @@ export default function CheckoutPage() {
                 )
               }
               required
+              disabled={form.delivery_type !== "delivery"}
             />
           </label>
 
@@ -207,6 +263,7 @@ export default function CheckoutPage() {
                 )
               }
               required
+              disabled={form.delivery_type !== "delivery"}
             />
           </label>
 
@@ -222,6 +279,7 @@ export default function CheckoutPage() {
                 )
               }
               required
+              disabled={form.delivery_type !== "delivery"}
             />
           </label>
 
@@ -236,6 +294,7 @@ export default function CheckoutPage() {
                 )
               }
               required
+              disabled={form.delivery_type !== "delivery"}
             >
               <option value="">
                 Selecione
@@ -264,6 +323,7 @@ export default function CheckoutPage() {
                 )
               }
               required
+              disabled={form.delivery_type !== "delivery"}
             />
           </label>
 
@@ -279,6 +339,7 @@ export default function CheckoutPage() {
                 )
               }
               required
+              disabled={form.delivery_type !== "delivery"}
             />
           </label>
 
@@ -314,6 +375,23 @@ export default function CheckoutPage() {
 
           <h2>Endereço</h2>
 
+          {form.delivery_type === "delivery" && addresses.length > 0 && (
+            <label>
+              Endereço salvo
+              <select
+                value={form.selected_address_id}
+                onChange={(e) => updateForm("selected_address_id", e.target.value)}
+              >
+                <option value="">Cadastrar novo endereço</option>
+                {addresses.map((address) => (
+                  <option key={address.id} value={address.id}>
+                    {address.street}, {address.number} - {address.city}/{address.state}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
           <label>
             CEP *
             <input
@@ -324,7 +402,8 @@ export default function CheckoutPage() {
                   e.target.value
                 )
               }
-              required
+              required={form.delivery_type === "delivery" && !form.selected_address_id}
+              disabled={form.delivery_type !== "delivery" || Boolean(form.selected_address_id)}
             />
           </label>
 
@@ -338,7 +417,8 @@ export default function CheckoutPage() {
                   e.target.value
                 )
               }
-              required
+              required={form.delivery_type === "delivery" && !form.selected_address_id}
+              disabled={form.delivery_type !== "delivery" || Boolean(form.selected_address_id)}
             />
           </label>
 
@@ -352,7 +432,8 @@ export default function CheckoutPage() {
                   e.target.value
                 )
               }
-              required
+              required={form.delivery_type === "delivery" && !form.selected_address_id}
+              disabled={form.delivery_type !== "delivery" || Boolean(form.selected_address_id)}
             />
           </label>
 
@@ -366,6 +447,7 @@ export default function CheckoutPage() {
                   e.target.value
                 )
               }
+              disabled={form.delivery_type !== "delivery" || Boolean(form.selected_address_id)}
             />
           </label>
 
@@ -379,7 +461,8 @@ export default function CheckoutPage() {
                   e.target.value
                 )
               }
-              required
+              required={form.delivery_type === "delivery" && !form.selected_address_id}
+              disabled={form.delivery_type !== "delivery" || Boolean(form.selected_address_id)}
             />
           </label>
 
@@ -393,7 +476,8 @@ export default function CheckoutPage() {
                   e.target.value
                 )
               }
-              required
+              required={form.delivery_type === "delivery" && !form.selected_address_id}
+              disabled={form.delivery_type !== "delivery" || Boolean(form.selected_address_id)}
             />
           </label>
 
@@ -407,7 +491,8 @@ export default function CheckoutPage() {
                   e.target.value
                 )
               }
-              required
+              required={form.delivery_type === "delivery" && !form.selected_address_id}
+              disabled={form.delivery_type !== "delivery" || Boolean(form.selected_address_id)}
             />
           </label>
 
@@ -445,15 +530,15 @@ export default function CheckoutPage() {
                 )
               }
             >
-              <option value="pix">
-                PIX
+              <option value="pending">
+                Pendente
               </option>
 
-              <option value="card">
+              <option value="on_delivery_card">
                 Cartão
               </option>
 
-              <option value="cash">
+              <option value="on_delivery_cash">
                 Dinheiro
               </option>
             </select>
@@ -475,7 +560,7 @@ export default function CheckoutPage() {
 
           <div className="checkout-terms-box">
             <Link
-              to="/termos-locacao"
+              to="/contrato"
               target="_blank"
               className="checkout-terms-link"
             >

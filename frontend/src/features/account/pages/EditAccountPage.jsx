@@ -5,18 +5,18 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import Hero from "@/shared/components/Hero";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { updateProfile } from "../api/accountApi";
 
-import { schema } from "./schema";
-import { apiMockUpdateAccount } from "./apiMock";
+import { schema } from "../schemas/accountSchema";
 
 import "../styles/EditAccountPage.css";
 
 export default function EditAccountPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
 
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState(null);
 
   const [preview, setPreview] = useState(
     user?.profile_photo || ""
@@ -44,34 +44,38 @@ export default function EditAccountPage() {
       city: user?.city || "",
       state: user?.state || "",
 
-      child_name: user?.child_name || "",
-      child_birthdate: user?.child_birthdate || "",
-
       password: "",
       confirmPassword: "",
     },
   });
 
-  async function onSubmit(data) {
+  async function onSubmit(formData) {
     try {
-      setLoading(true);
-      setSuccess("");
+      setSaving(true);
+      setFeedback(null);
 
-      await apiMockUpdateAccount({
-        ...data,
-        profile_photo: preview,
-      });
+      const payload = {
+        name: formData.customer_name,
+        email: formData.customer_email,
+        phone: formData.customer_phone,
+        cpf: formData.customer_cpf,
+        birthdate: formData.customer_birthdate || null,
+        ...(formData.password ? { password: formData.password } : {}),
+        zip_code: formData.zip_code,
+        street: formData.street,
+        number: formData.number,
+        neighborhood: formData.neighborhood,
+        city: formData.city,
+        state: formData.state,
+      };
 
-      setSuccess("Cadastro atualizado com sucesso!");
-
-      setTimeout(() => {
-        navigate("/minha-conta");
-      }, 1500);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao atualizar cadastro.");
+      await updateProfile(payload);
+      await refreshUser();
+      navigate("/minha-conta");
+    } catch (err) {
+      setFeedback({ type: "error", message: err.message });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
 
@@ -205,34 +209,6 @@ export default function EditAccountPage() {
             </section>
 
             <section className="form-section">
-              <h2>Dados da Criança (Opcional)</h2>
-
-              <div className="grid">
-
-                <Field
-                  label="Nome da Criança"
-                  error={errors.child_name}
-                >
-                  <input
-                    {...register("child_name")}
-                    placeholder="Nome da criança"
-                  />
-                </Field>
-
-                <Field
-                  label="Data de Nascimento"
-                  error={errors.child_birthdate}
-                >
-                  <input
-                    type="date"
-                    {...register("child_birthdate")}
-                  />
-                </Field>
-
-              </div>
-            </section>
-
-            <section className="form-section">
               <h2>Endereço</h2>
 
               <div className="grid">
@@ -332,9 +308,9 @@ export default function EditAccountPage() {
               </div>
             </section>
 
-            {success && (
-              <div className="success-message">
-                {success}
+            {feedback && (
+              <div className={`feedback ${feedback.type}`}>
+                {feedback.message}
               </div>
             )}
 
@@ -343,7 +319,6 @@ export default function EditAccountPage() {
     type="button"
     className="cancel-button"
     onClick={() => navigate("/minha-conta")}
-    disabled={loading}
   >
     Cancelar
   </button>
@@ -351,11 +326,9 @@ export default function EditAccountPage() {
   <button
     type="submit"
     className="save-button"
-    disabled={loading}
+    disabled={saving}
   >
-    {loading
-      ? "Salvando alterações..."
-      : "Salvar Alterações"}
+    {saving ? "Salvando..." : "Salvar Alterações"}
   </button>
 </div>
           </form>
