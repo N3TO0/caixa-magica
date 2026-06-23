@@ -17,9 +17,10 @@ import ProductsPage from "@/features/products/pages/ProductsPage";
 import SearchPage from "@/features/search/pages/SearchPage";
 import CartPage from "@/features/cart/pages/CartPage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
-import AdminPedidoPage from "@/features/admin/AdminPedidoPage";
-import AdminPedidosPage from "@/features/admin/AdminPedidosPage";
-import AdminUsuariosPage from "@/features/admin/AdminUsuariosPage";
+import AdminOrderStatusPage from "@/features/admin/pages/AdminOrderStatusPage";
+import AdminOrdersPage from "@/features/admin/pages/AdminOrdersPage";
+import AdminUsersPage from "@/features/admin/pages/AdminUsersPage";
+import { AdminRoute, ProtectedRoute } from "./routes/ProtectedRoute";
 
 export default function AppRouter() {
   return (
@@ -34,17 +35,17 @@ export default function AppRouter() {
       <Route path="/pesquisa/:termo" element={<SearchPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
       <Route path="/pedido/sucesso/:id" element={<OrderSuccessPage />} />
-      <Route path="/minha-conta" element={<AccountPage />} />
-      <Route path="/minha-conta/editar" element={<EditAccountPage />} />
-      <Route path="/meus-pedidos" element={<MyOrdersPage />} />
-      <Route path="/pedidos/:id" element={<OrderDetailPage />} />
+      <Route path="/minha-conta" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
+      <Route path="/minha-conta/editar" element={<ProtectedRoute><EditAccountPage /></ProtectedRoute>} />
+      <Route path="/meus-pedidos" element={<ProtectedRoute><MyOrdersPage /></ProtectedRoute>} />
+      <Route path="/pedidos/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
       <Route path="/carrinho" element={<CartPage />} />
       <Route path="/recuperacao-senha" element={<ForgotPasswordPage />} />
-      <Route path="/admin/pedido/:id:/status" element={<AdminPedidoPage />} /> 
-      <Route path="/admin/pedidos" element={<AdminPedidosPage />} />
-      <Route path="/admin/usuarios" element={<AdminUsuariosPage />} />
+      <Route path="/admin/pedidos/:id/status" element={<AdminRoute><AdminOrderStatusPage /></AdminRoute>} />
+      <Route path="/admin/pedidos" element={<AdminRoute><AdminOrdersPage /></AdminRoute>} />
+      <Route path="/admin/usuarios" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
     </Routes>
   );
 }
