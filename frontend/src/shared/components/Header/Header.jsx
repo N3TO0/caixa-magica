@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useCart } from "@/features/cart/hooks/useCart";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import {
   FaInstagram,
   FaWhatsapp,
@@ -15,6 +16,7 @@ import "./Header.css";
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { cartItems } = useCart();
+  const { isAuthenticated, user } = useAuth();
   const [busca, setBusca] = useState("");
   const navigate = useNavigate();
   function pesquisar(e) {
@@ -72,12 +74,12 @@ export default function Header() {
             <span>WhatsApp</span>
           </button>
 
-          <Link to="/login" className="icon-btn login" aria-label="Minha conta">
+          <Link to={isAuthenticated ? "/minha-conta" : "/login"} className="icon-btn login" aria-label="Minha conta">
             <FaUser />
             <span>Conta</span>
           </Link>
 
-          <Link to="/checkout" className="icon-btn carrinho" aria-label="Carrinho">
+          <Link to="/carrinho" className="icon-btn carrinho" aria-label="Carrinho">
             <FaShoppingCart />
             {cartItems?.length > 0 && (
               <span className="cart-badge">{cartItems.length}</span>
@@ -102,6 +104,9 @@ export default function Header() {
         <NavLink to="/produtos" onClick={() => setMenuOpen(false)}>Produtos</NavLink>
         <NavLink to="/duvidas" onClick={() => setMenuOpen(false)}>Dúvidas</NavLink>
         <NavLink to="/contrato" onClick={() => setMenuOpen(false)}>Contrato</NavLink>
+        {user?.role === "admin" && (
+          <NavLink to="/admin/pedidos" onClick={() => setMenuOpen(false)}>Admin</NavLink>
+        )}
       </nav>
     </header>
   );
