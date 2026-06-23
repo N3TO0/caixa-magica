@@ -1,3 +1,5 @@
+import { formatCurrency } from "@/shared/utils/moneyUtils";
+
 export default function CartItem({
   item,
   onRemove,
@@ -26,7 +28,7 @@ export default function CartItem({
         </p>
 
         <strong>
-          R$ {(item.price_snapshot * item.quantity * (item.days / 7)).toFixed(2)}
+          {formatCurrency(Number(item.price_snapshot || 0) * Number(item.quantity || 1))}
         </strong>
       </div>
 
@@ -35,7 +37,7 @@ export default function CartItem({
         {/* QUANTIDADE */}
         <div className="quantity-control">
           <button onClick={() =>
-            onUpdateQuantity(item.product_id, Math.max(1, item.quantity - 1))
+            onUpdateQuantity(item.cart_item_id, Math.max(1, item.quantity - 1))
           }>
             -
           </button>
@@ -43,7 +45,7 @@ export default function CartItem({
           <span>{item.quantity}</span>
 
           <button onClick={() =>
-            onUpdateQuantity(item.product_id, item.quantity + 1)
+            onUpdateQuantity(item.cart_item_id, item.quantity + 1)
           }>
             +
           </button>
@@ -53,7 +55,7 @@ export default function CartItem({
         <select
           value={item.days}
           onChange={(e) =>
-            onUpdateDays(item.product_id, Number(e.target.value))
+            onUpdateDays(item.cart_item_id, Number(e.target.value))
           }
         >
           <option value={7}>7 dias</option>
@@ -62,7 +64,7 @@ export default function CartItem({
         </select>
 
         {/* REMOVER */}
-        <button className="remove-btn" onClick={() => onRemove(item.product_id)}>
+        <button className="remove-btn" onClick={() => onRemove(item.cart_item_id)}>
           Remover
         </button>
 

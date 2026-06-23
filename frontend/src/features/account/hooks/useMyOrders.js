@@ -12,8 +12,8 @@ export function useMyOrders() {
     async function loadOrders() {
       try {
         setLoading(true);
-        const data = await getMyOrders();
-        if (active) setOrders(data);
+        const response = await getMyOrders();
+        if (active) setOrders(response.data || []);
       } catch (err) {
         if (active) setError(err);
       } finally {

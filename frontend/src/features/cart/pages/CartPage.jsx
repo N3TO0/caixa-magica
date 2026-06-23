@@ -1,65 +1,27 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import CartItem from "../components/CartItem";
 import CartSummary from "../components/CartSummary";
 import Hero from "@/shared/components/Hero";
 import { getCartTotal } from "../utils/cartTotals";
 import { addDays } from "@/shared/utils/dateUtils";
+import { useCart } from "../hooks/useCart";
 import "../styles/CartPage.css";
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState([
-    {
-      product_id: 1,
-      name: "Berço Portátil",
-      image_url:
-        "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600",
-      quantity: 1,
-      days: 7,
-      start_date: new Date().toISOString().split("T")[0],
-  end_date: addDays(new Date().toISOString().split("T")[0], 7),
-      price_snapshot: 120,
-    },
-  ]);
+  const { cartItems, removeFromCart, updateCartItem } = useCart();
 
-  function updateQuantity(id, quantity) {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.product_id === id
-          ? { ...item, quantity }
-          : item
-      )
-    );
+  function updateQuantity(cartItemId, quantity) {
+    updateCartItem(cartItemId, { quantity });
   }
 
-  function updateQuantity(id, quantity) {
-  setCartItems(prev =>
-    prev.map(item =>
-      item.product_id === id ? { ...item, quantity } : item
-    )
-  );
-}
+  function updateDays(cartItemId, days) {
+    const item = cartItems.find((cartItem) => cartItem.cart_item_id === cartItemId);
+    if (!item) return;
 
-function updateDays(id, days) {
-  setCartItems(prev =>
-    prev.map(item => {
-      if (item.product_id !== id) return item;
-
-      const start = item.start_date;
-
-      return {
-        ...item,
-        days,
-        end_date: addDays(start, days),
-      };
-    })
-  );
-}
-
-  function removeFromCart(id) {
-    setCartItems((prev) =>
-      prev.filter((item) => item.product_id !== id)
-    );
+    updateCartItem(cartItemId, {
+      days,
+      end_date: addDays(item.start_date, days),
+    });
   }
 
   const total = getCartTotal(cartItems);
@@ -89,7 +51,7 @@ function updateDays(id, days) {
           ) : (
             cartItems.map((item) => (
               <CartItem
-                key={item.product_id}
+                key={item.cart_item_id}
                 item={item}
                 onRemove={removeFromCart}
                 onUpdateQuantity={updateQuantity}

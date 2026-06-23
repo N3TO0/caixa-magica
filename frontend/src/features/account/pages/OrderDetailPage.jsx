@@ -20,8 +20,8 @@ export default function OrderDetailPage() {
     async function loadOrder() {
       try {
         setLoading(true);
-        const data = await getOrderDetail(id);
-        if (active) setOrder(data);
+        const response = await getOrderDetail(id);
+        if (active) setOrder(response.data || null);
       } catch (err) {
         if (active) setError(err);
       } finally {
@@ -47,11 +47,11 @@ export default function OrderDetailPage() {
         {order && (
           <section className="account-card order-detail-card">
             <h2>Status: {order.status}</h2>
-            <p>Total: {formatCurrency(order.total)}</p>
+            <p>Total: {formatCurrency(order.total_amount)}</p>
             <div className="order-detail-items">
-              {order.items.map(item => (
-                <article key={`${order.id}-${item.product_id}`}>
-                  <strong>{item.name}</strong>
+              {(order.items || []).map(item => (
+                <article key={`${order.id}-${item.id}`}>
+                  <strong>{item.product_name}</strong>
                   <span>{item.days} dias • {item.start_date} até {item.end_date}</span>
                 </article>
               ))}

@@ -1,32 +1,13 @@
 import { Link } from "react-router-dom";
 import Hero from "@/shared/components/Hero";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { formatCurrency } from "@/shared/utils/moneyUtils";
+import { useMyOrders } from "../hooks/useMyOrders";
 import "../styles/AccountPage.css";
 
 export default function AccountPage() {
   const { user } = useAuth();
-
-  // Futuramente virá da API
-  const orders = [
-    {
-      id: "PED-001",
-      productName: "Berço Portátil",
-      status: "Em andamento",
-      startDate: "10/06/2026",
-      endDate: "17/06/2026",
-      itemsCount: 1,
-      total: 149.9,
-    },
-    {
-      id: "PED-002",
-      productName: "Cadeira de Alimentação",
-      status: "Finalizado",
-      startDate: "01/05/2026",
-      endDate: "15/05/2026",
-      itemsCount: 2,
-      total: 239.9,
-    },
-  ];
+  const { error, loading, orders } = useMyOrders();
 
   return (
     <>
@@ -188,14 +169,18 @@ export default function AccountPage() {
           <h2>Meus Pedidos</h2>
 
           <div className="orders-grid">
-            {orders.map((order) => (
+            {loading && <p>Carregando pedidos...</p>}
+            {error && <p>{error.message}</p>}
+            {!loading && !error && orders.length === 0 && <p>Nenhum pedido encontrado.</p>}
+
+            {!loading && !error && orders.map((order) => (
               <article
                 key={order.id}
                 className="order-card"
               >
                 <div className="order-header">
                   <span className="order-number">
-                    {order.id}
+                    Pedido #{order.id}
                   </span>
 
                   <span className="order-status">
@@ -203,29 +188,21 @@ export default function AccountPage() {
                   </span>
                 </div>
 
-                <h3>{order.productName}</h3>
+                <h3>{order.status}</h3>
 
                 <p>
                   <strong>Itens:</strong>{" "}
-                  {order.itemsCount}
+                  {order.items_count}
                 </p>
 
                 <p>
-                  <strong>Início:</strong>{" "}
-                  {order.startDate}
-                </p>
-
-                <p>
-                  <strong>Devolução:</strong>{" "}
-                  {order.endDate}
+                  <strong>Data:</strong>{" "}
+                  {new Date(order.created_at).toLocaleDateString("pt-BR")}
                 </p>
 
                 <p>
                   <strong>Total:</strong>{" "}
-                  R${" "}
-                  {order.total
-                    .toFixed(2)
-                    .replace(".", ",")}
+                  {formatCurrency(order.total_amount)}
                 </p>
 
                 <Link

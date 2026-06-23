@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import "../styles/LoginPage.css";
+import "../styles/AuthPages.css";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -8,9 +8,6 @@ export default function ForgotPasswordPage() {
 
   function handleSubmit(event) {
     event.preventDefault();
-
-    console.log("Recuperação:", email);
-
     setEnviado(true);
   }
 
@@ -34,7 +31,7 @@ export default function ForgotPasswordPage() {
         </form>
       ) : (
         <p>
-          Você receberá as instruções de recuperação no seu email. 
+          A recuperação de senha ainda não está disponível.
         </p>
       )}
 

@@ -23,7 +23,7 @@ export default function MyOrdersPage() {
             <article className="account-card order-card" key={order.id}>
               <span>Pedido #{order.id}</span>
               <h2>{order.status}</h2>
-              <p>Total: {formatCurrency(order.total)}</p>
+              <p>Total: {formatCurrency(order.total_amount)}</p>
               <Link to={`/pedidos/${order.id}`}>Ver detalhes</Link>
             </article>
           ))}

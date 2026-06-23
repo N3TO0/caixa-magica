@@ -3,8 +3,9 @@ import { formatCurrency } from "@/shared/utils/moneyUtils";
 import "./ProductCard.css";
 
 export default function ProductCard({ produto }) {
-  const image = produto.images?.[0]?.url;
-  const lowestPrice = produto.pricing?.find(item => item.is_active)?.price;
+  const image = produto.images?.[0]?.url || "https://via.placeholder.com/600x400?text=Caixa+Magica";
+  const activePrices = produto.pricing?.filter(item => item.is_active).map(item => Number(item.price)) || [];
+  const lowestPrice = activePrices.length ? Math.min(...activePrices) : 0;
 
   return (
     <article className="produto-card">
