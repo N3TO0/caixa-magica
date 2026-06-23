@@ -1,0 +1,96 @@
+.admin-status-page {
+  max-width: 700px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.status-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.campo label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.campo select,
+.campo textarea {
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.campo select:focus,
+.campo textarea:focus {
+  outline: none;
+  border-color: #ff7a00;
+}
+
+.status-atual {
+  background: #f5f7fb;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.mensagem {
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.mensagem.erro {
+  background: #ffeaea;
+  color: #d11a2a;
+}
+
+.mensagem.sucesso {
+  background: #eafbf0;
+  color: #118a43;
+}
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-voltar,
+.btn-salvar {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-voltar {
+  background: #e5e7eb;
+}
+
+.btn-salvar {
+  background: #ff7a00;
+  color: white;
+}
+
+.btn-salvar:hover {
+  opacity: 0.9;
+}
+
+.btn-salvar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

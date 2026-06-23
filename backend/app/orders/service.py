@@ -146,9 +146,126 @@ class OrderService:
         return order
 
     async def update_status(
-        self, order_id: int, new_status: str, changed_by: int | None = None
-    ):
-        raise NotImplementedError
+        self,
+        order_id: int,
+        novo_status: str,
+        observacao: str | None,
+        admin_user_id: int,
+    ) -> Order:
+        TRANSICOES_VALIDAS = {
+            "pendente": ["confirmado", "cancelado"],
+            "confirmado": ["em_uso", "cancelado"],
+            "em_uso": ["devolvido", "atrasado"],
+            "atrasado": ["devolvido"],
+            "devolvido": ["finalizado"],
+        }
 
-    async def check_availability(self, product_id: int, start: date, end: date):
-        raise NotImplementedError
+        try:
+            order = await self.db.get(Order, order_id)
+            if order is None or order.deleted_at is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Pedido não encontrado",
+                )
+
+            status_atual = order.status
+            if (
+                status_atual not in TRANSICOES_VALIDAS
+                or novo_status not in TRANSICOES_VALIDAS[status_atual]
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Transição de '{status_atual}' para '{novo_status}' não é permitida",
+                )
+
+            previous_status = order.status
+            order.status = novo_status
+            order.updated_at = datetime.now(UTC)
+
+            history = OrderStatusHistory(
+                order_id=order.id,
+                previous_status=previous_status,
+                new_status=novo_status,
+                changed_by=admin_user_id,
+                note=observacao,
+            )
+            self.db.add(history)
+
+            await self.db.commit()
+            await self.db.refresh(order)
+            return order
+        except Exception:
+            await self.db.rollback()
+            raise
+
+    async def expire_pending_orders(self) -> dict:
+        try:
+            now = datetime.now(UTC)
+            result = await self.db.execute(
+                select(Order).where(
+                    Order.status == "pendente",
+                    Order.expires_at < now,
+                    Order.deleted_at.is_(None),
+                )
+            )
+            expired_orders = result.scalars().all()
+
+            for order in expired_orders:
+                order.status = "cancelado"
+                order.updated_at = now
+
+                history = OrderStatusHistory(
+                    order_id=order.id,
+                    previous_status="pendente",
+                    new_status="cancelado",
+                    changed_by=None,
+                    note="Cancelado automaticamente por expiração",
+                )
+                self.db.add(history)
+
+                reservations_result = await self.db.execute(
+                    select(Reservation).where(
+                        Reservation.order_item_id.in_(
+                            select(OrderItem.id).where(
+                                OrderItem.order_id == order.id
+                            )
+                        )
+                    )
+                )
+                for reservation in reservations_result.scalars().all():
+                    reservation.status = "cancelled"
+
+            await self.db.commit()
+            return {"cancelados": len(expired_orders)}
+        except Exception:
+            await self.db.rollback()
+            raise
+
+    async def check_availability(
+        self, product_id: int, start_date: date, end_date: date
+    ) -> dict:
+        product = await self.db.get(Product, product_id)
+        if product is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Produto não encontrado",
+            )
+
+        count_result = await self.db.execute(
+            select(func.count())
+            .select_from(Reservation)
+            .where(
+                Reservation.product_id == product_id,
+                Reservation.status == "active",
+                Reservation.period_start < end_date,
+                Reservation.period_end > start_date,
+            )
+        )
+        active_count = count_result.scalar_one()
+
+        unidades_livres = product.total_units - active_count
+        return {
+            "disponivel": unidades_livres > 0,
+            "unidades_livres": unidades_livres,
+            "total_unidades": product.total_units,
+        }

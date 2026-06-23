@@ -1,4 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from math import ceil
+from sqlalchemy import select, func, update
+from sqlalchemy.orm import joinedload
+from app.orders.models import Order
+from app.users.models import User, Address
+from app.core.security import hash_password, verify_password, create_access_token
+from app.core.exceptions import ConflictException, UnauthorizedException
+from sqlalchemy.orm import selectinload
 
 
 class UserService:
@@ -6,10 +14,6 @@ class UserService:
         self.db = db
 
     async def register(self, data):
-        from sqlalchemy import select
-        from app.core.security import hash_password
-        from app.core.exceptions import ConflictException
-        from app.users.models import User
 
         # 1. Verificar se já existe um usuário com esse email
         query = select(User).where(User.email == data.email)
@@ -43,10 +47,7 @@ class UserService:
         return new_user
 
     async def authenticate(self, data):
-        from sqlalchemy import select
-        from app.core.security import verify_password, create_access_token
-        from app.core.exceptions import UnauthorizedException
-        from app.users.models import User
+        
 
         # 1. Buscar o usuário pelo e-mail enviado
         query = select(User).where(User.email == data.email)
@@ -81,10 +82,210 @@ class UserService:
         # TODO: implementar busca por id
         raise NotImplementedError
 
-    async def add_address(self, user_id: int, data):
-        # TODO: implementar cadastro de endereço do usuário
-        raise NotImplementedError
+    async def get_user_orders(self, user_id: int, page: int = 1, limit: int = 10):
+        
 
-    async def get_user_orders(self, user_id: int):
-        # TODO: implementar listagem de pedidos do usuário
-        raise NotImplementedError
+        if page < 1:
+            page = 1
+        if limit < 1:
+            limit = 10
+            
+        offset = (page - 1) * limit
+
+        # 1. Conta o total de pedidos do usuário (excluindo soft delete) [cite: 122, 126]
+        count_query = select(func.count(Order.id)).where(
+            Order.user_id == user_id,
+            Order.deleted_at.is_(None)
+        )
+        total_result = await self.db.execute(count_query)
+        total_orders = total_result.scalar() or 0
+
+        # 2. Busca os pedidos trazendo os itens pré-carregados (evita lazy loading) [cite: 122, 123, 124, 125]
+        orders_query = (
+            select(Order)
+            .where(Order.user_id == user_id, Order.deleted_at.is_(None))
+            .options(selectinload(Order.items))
+            .order_by(Order.created_at.desc())  # Mais recente primeiro [cite: 123]
+            .offset(offset)
+            .limit(limit)
+        )
+        orders_result = await self.db.execute(orders_query)
+        orders_list = orders_result.scalars().all()
+
+        # 3. Formata os dados injetando a contagem de itens [cite: 125]
+        from app.users.schemas import OrderHistoryResponse
+        formatted_orders = [
+            OrderHistoryResponse(
+                id=order.id,
+                status=order.status,
+                total_amount=order.total_amount,
+                created_at=order.created_at,
+                items_count=len(order.items)
+            )
+            for order in orders_list
+        ]
+
+        total_pages = ceil(total_orders / limit) if total_orders > 0 else 1 
+
+        return {
+            "data": formatted_orders,
+            "total_orders": total_orders,
+            "total_pages": total_pages,
+            "page": page,
+            "limit": limit
+        }
+
+    async def add_address(self, user_id: int, data):
+        
+
+        # Se o novo endereço for o padrão, desmarca todos os outros do usuário primeiro
+        if data.is_default:
+            stmt = (
+                update(Address)
+                .where(Address.user_id == user_id, Address.is_default == True)
+                .values(is_default=False)
+            )
+            await self.db.execute(stmt)
+
+        # Cria o novo objeto de endereço mapeando os campos do Pydantic
+        new_address = Address(
+            user_id=user_id,
+            label=data.label,
+            zip_code=data.zip_code,
+            street=data.street,
+            number=data.number,
+            complement=data.complement,
+            neighborhood=data.neighborhood,
+            city=data.city,
+            state=data.state,
+            is_default=data.is_default
+        )
+
+        # Salva no PostgreSQL
+        self.db.add(new_address)
+        await self.db.commit()
+        await self.db.refresh(new_address)
+
+        return new_address
+    
+    async def get_user_addresses(self, user_id: int):
+        
+
+        # Busca todos os endereços do usuário
+        # Ordena por is_default DESC para que o True (padrão) fique no topo da lista
+        query = (
+            select(Address)
+            .where(Address.user_id == user_id)
+            .order_by(Address.is_default.desc(), Address.id.asc())
+        )
+        
+        result = await self.db.execute(query)
+        addresses_list = result.scalars().all()
+
+        return addresses_list
+    
+    async def get_all_orders_admin(self, page: int = 1, limit: int = 10, status_filter: str = None):
+
+        if page < 1: page = 1
+        if limit < 1: limit = 10
+        offset = (page - 1) * limit
+
+        # 1. Base da query para contagem e listagem (filtrando soft delete)
+        count_stmt = select(func.count(Order.id)).where(Order.deleted_at.is_(None))
+        select_stmt = (
+            select(Order)
+            .where(Order.deleted_at.is_(None))
+            .options(joinedload(Order.user)) # Carrega o relacionamento com o cliente
+            .order_by(Order.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+
+        # 2. Se o admin passou um status para filtrar, aplica nas duas queries
+        if status_filter:
+            count_stmt = count_stmt.where(Order.status == status_filter)
+            select_stmt = select_stmt.where(Order.status == status_filter)
+
+        # 3. Executa a contagem total
+        total_result = await self.db.execute(count_stmt)
+        total_orders = total_result.scalar() or 0
+
+        # 4. Executa a busca dos pedidos
+        orders_result = await self.db.execute(select_stmt)
+        orders_list = orders_result.scalars().all()
+
+        # 5. Formata a resposta mapeando o nome do cliente vindo da relação Order.user
+        from app.users.schemas import AdminOrderResponse
+        formatted_orders = [
+            AdminOrderResponse(
+                id=order.id,
+                client_name=order.user.name if order.user else "Cliente Desconhecido",
+                status=order.status,
+                total_amount=order.total_amount,
+                created_at=order.created_at
+            )
+            for order in orders_list
+        ]
+
+        total_pages = ceil(total_orders / limit) if total_orders > 0 else 1
+
+        return {
+            "data": formatted_orders,
+            "total_orders": total_orders,
+            "total_pages": total_pages,
+            "page": page,
+            "limit": limit
+        }
+    async def get_all_customers_admin(self, page: int = 1, limit: int = 10):
+
+        if page < 1: page = 1
+        if limit < 1: limit = 10
+        offset = (page - 1) * limit
+
+        # 1. Conta o total de clientes ativos (role='customer' e não deletados)
+        count_stmt = select(func.count(User.id)).where(
+            User.role == "customer",
+            User.deleted_at.is_(None)
+        )
+        total_result = await self.db.execute(count_stmt)
+        total_users = total_result.scalar() or 0
+
+        # 2. Busca os usuários e faz um LEFT JOIN com a tabela de pedidos agrupando por ID
+        select_stmt = (
+            select(User, func.count(Order.id).label("total_orders"))
+            .join(Order, Order.user_id == User.id, isouter=True)
+            .where(
+                User.role == "customer",
+                User.deleted_at.is_(None)
+            )
+            .group_by(User.id)
+            .offset(offset)
+            .limit(limit)
+        )
+        
+        users_result = await self.db.execute(select_stmt)
+        rows = users_result.all()
+
+        # 3. Formata a lista de saída conforme o Schema
+        from app.users.schemas import AdminUserListResponse
+        formatted_users = [
+            AdminUserListResponse(
+                id=user.id,
+                name=user.name,
+                email=user.email,
+                phone=user.phone,
+                total_orders=total_orders,
+                created_at=user.created_at
+            )
+            for user, total_orders in rows
+        ]
+
+        total_pages = ceil(total_users / limit) if total_users > 0 else 1
+
+        return {
+            "data": formatted_users,
+            "total_users": total_users,
+            "total_pages": total_pages,
+            "page": page,
+            "limit": limit
+        }

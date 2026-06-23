@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, status
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.responses import success_response
 from app.core.security import get_current_user
 from app.database import get_db
-from app.orders.schemas import OrderCreate
+from app.orders.schemas import OrderCreate, OrderStatusUpdate
 from app.orders.service import OrderService
 from app.users.models import User
 
@@ -30,9 +32,16 @@ async def create_order(
     )
 
 
-@router.get("/disponibilidade/{product_id}", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def check_availability(product_id: int):
-    return {"detail": "Endpoint em desenvolvimento"}
+@router.get("/disponibilidade/{product_id}")
+async def check_availability(
+    product_id: int,
+    start_date: date,
+    end_date: date,
+    db: AsyncSession = Depends(get_db),
+):
+    service = OrderService(db)
+    result = await service.check_availability(product_id, start_date, end_date)
+    return success_response(data=result)
 
 
 @router.get("/{order_id}")
@@ -77,6 +86,38 @@ async def get_order(
     )
 
 
-@router.patch("/{order_id}/status", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def update_order_status(order_id: int):
-    return {"detail": "Endpoint em desenvolvimento"}
+@router.patch("/{order_id}/status")
+async def update_order_status(
+    order_id: int,
+    data: OrderStatusUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Acesso negado"
+        )
+
+    service = OrderService(db)
+    order = await service.update_status(
+        order_id, data.novo_status, data.observacao, current_user.id
+    )
+    return success_response(data={"id": order.id, "status": order.status})
+
+
+@router.post("/admin/expirar")
+async def expire_orders(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Acesso negado"
+        )
+
+    service = OrderService(db)
+    result = await service.expire_pending_orders()
+    return success_response(
+        data=result,
+        message=f"{result['cancelados']} pedido(s) expirado(s)",
+    )
