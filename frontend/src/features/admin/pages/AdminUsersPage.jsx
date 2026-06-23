@@ -1,56 +1,29 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Hero from "@/shared/components/Hero";
-import "./styles/AdminUsuariosPage.css";
+import { getAdminUsers } from "../api/adminApi";
+import "../styles/AdminUsuariosPage.css";
 
-export default function AdminUsuariosPage() {
-  const navigate = useNavigate();
-
+export default function AdminUsersPage() {
   const [usuarios, setUsuarios] = useState([]);
   const [busca, setBusca] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     carregarUsuarios();
   }, []);
 
   async function carregarUsuarios() {
-    setLoading(true);
-
-    const responseMock = {
-      success: true,
-      data: {
-        usuarios: [
-          {
-            id: 1,
-            name: "Felipe Teste",
-            email: "felipe@teste.com",
-            phone: "(79) 99999-1111",
-            total_pedidos: 3,
-            created_at: "2026-05-20T18:04:02Z",
-          },
-          {
-            id: 2,
-            name: "Maria Silva",
-            email: "maria@email.com",
-            phone: "(79) 99999-2222",
-            total_pedidos: 7,
-            created_at: "2026-05-10T14:00:00Z",
-          },
-          {
-            id: 3,
-            name: "João Santos",
-            email: "joao@email.com",
-            phone: null,
-            total_pedidos: 1,
-            created_at: "2026-04-18T09:20:00Z",
-          },
-        ],
-      },
-    };
-
-    setUsuarios(responseMock.data.usuarios);
-    setLoading(false);
+    try {
+      setLoading(true);
+      setError("");
+      const response = await getAdminUsers();
+      setUsuarios(response.data || []);
+    } catch (err) {
+      setError(err.message || "Não foi possível carregar os clientes.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const usuariosFiltrados = usuarios.filter((usuario) =>
@@ -67,7 +40,6 @@ export default function AdminUsuariosPage() {
 
       <div className="admin-container">
 
-        {/* TOOLBAR PADRÃO HERO/PEDIDOS */}
         <div className="toolbar">
 
           <div className="search-box">
@@ -82,10 +54,13 @@ export default function AdminUsuariosPage() {
 
         </div>
 
-        {/* LISTA */}
         {loading ? (
           <div className="loading">
             Carregando clientes...
+          </div>
+        ) : error ? (
+          <div className="loading">
+            {error}
           </div>
         ) : (
           <div className="usuarios-grid">
@@ -98,7 +73,7 @@ export default function AdminUsuariosPage() {
 
                   <p><strong>Email:</strong> {usuario.email}</p>
                   <p><strong>Telefone:</strong> {usuario.phone || "-"}</p>
-                  <p><strong>Pedidos:</strong> {usuario.total_pedidos}</p>
+                  <p><strong>Pedidos:</strong> {usuario.total_orders}</p>
                   <p>
                     <strong>Cadastro:</strong>{" "}
                     {new Date(usuario.created_at).toLocaleDateString("pt-BR")}
@@ -106,11 +81,8 @@ export default function AdminUsuariosPage() {
                 </div>
 
                 <div className="usuario-actions">
-                  <button
-                    className="btn-action"
-                    onClick={() => navigate(`/admin/clientes/${usuario.id}`)}
-                  >
-                    Ver Mais
+                  <button className="btn-action" type="button" disabled>
+                    Detalhe indisponível
                   </button>
                 </div>
 

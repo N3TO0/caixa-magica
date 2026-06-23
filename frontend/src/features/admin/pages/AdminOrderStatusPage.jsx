@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Hero from "@/shared/components/Hero";
-import "./styles/AdminPedidoPage.css";
+import { updateAdminOrderStatus } from "../api/adminApi";
+import { getOrderDetail } from "@/features/account/api/accountApi";
+import "../styles/AdminPedidoPage.css";
 
 const TRANSICOES = {
   pendente: ["confirmado", "cancelado"],
@@ -13,11 +15,10 @@ const TRANSICOES = {
   cancelado: [],
 };
 
-export default function AdminPedidoPage() {
+export default function AdminOrderStatusPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // MOCK TEMPORÁRIO
   const [statusAtual, setStatusAtual] = useState("pendente");
 
   const [novoStatus, setNovoStatus] = useState("");
@@ -26,18 +27,39 @@ export default function AdminPedidoPage() {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
+  useEffect(() => {
+    let active = true;
+
+    async function carregarPedido() {
+      try {
+        const response = await getOrderDetail(id);
+        if (active && response.data?.status) {
+          setStatusAtual(response.data.status);
+        }
+      } catch (error) {
+        if (active) setErro(error.message || "Não foi possível carregar o pedido.");
+      }
+    }
+
+    carregarPedido();
+
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
   async function atualizarStatus() {
     try {
       setLoading(true);
       setErro("");
       setSucesso("");
 
-      // MOCK TEMPORÁRIO
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1000)
-      );
+      const response = await updateAdminOrderStatus(id, {
+        novo_status: novoStatus,
+        observacao,
+      });
 
-      setStatusAtual(novoStatus);
+      setStatusAtual(response.data?.status || novoStatus);
       setNovoStatus("");
 
       setSucesso(
@@ -45,40 +67,8 @@ export default function AdminPedidoPage() {
       );
 
       setTimeout(() => {
-        navigate(`/admin/pedidos/${id}`);
+        navigate("/admin/pedidos");
       }, 1500);
-
-      /*
-      ===== INTEGRAÇÃO FUTURA =====
-
-      const response = await fetch(
-        `/api/v1/pedidos/${id}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            novo_status: novoStatus,
-            observacao,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.detail || "Erro ao atualizar status"
-        );
-      }
-
-      setStatusAtual(data.data.status);
-      setNovoStatus("");
-      setSucesso("Status atualizado com sucesso!");
-
-      */
     } catch (error) {
       setErro(error.message);
     } finally {
