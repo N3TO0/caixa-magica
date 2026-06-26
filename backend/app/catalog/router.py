@@ -15,13 +15,21 @@ from app.catalog.schemas import (
 from app.core.security import get_current_user
 
 
-
+# -------------------------------------------------------------------------
+# Rotas do módulo de catálogo
+# -------------------
 router = APIRouter(
     prefix="/produtos",
     tags=["Catálogo"]
 )
 
 
+# -------------------------------------------------------------------------
+# Lista produtos ativos com filtros opcionais:
+# - categoria
+# - faixa etária
+# - disponibilidade por período
+# -------------------------------------------------------------------------
 @router.get("/")
 async def list_products(
     categoria_id: Optional[int] = None,
@@ -39,7 +47,9 @@ async def list_products(
         end_date=end_date
     )
 
-
+# -------------------------------------------------------------------------
+# Lista todas as categorias ativas do catálogo
+# -------------------------------------------------------------------------
 @router.get("/categorias")
 async def list_categories(
     db: AsyncSession = Depends(get_db)
@@ -47,6 +57,10 @@ async def list_categories(
     service = CatalogService(db)
     return await service.get_categories()
 
+# -------------------------------------------------------------------------
+# Cadastro de produto
+# Acesso restrito para usuários administradores
+# -------------------------------------------------------------------------
 @router.post(
     "/admin",
     response_model=ProductDetailOut,
@@ -67,6 +81,11 @@ async def create_product(
 
     return await service.create_product(data)
 
+# -------------------------------------------------------------------------
+# Atualização de produto
+# Permite atualização parcial dos dados do produto
+# Acesso restrito para administradores
+# -------------------------------------------------------------------------
 @router.put(
     "/admin/{product_id}",
     response_model=ProductDetailOut
@@ -90,6 +109,11 @@ async def update_product(
         data
     )
 
+# -------------------------------------------------------------------------
+# Ativa ou desativa um produto no catálogo
+# Produtos inativos não aparecem na listagem pública
+# Acesso restrito para administradores
+# -------------------------------------------------------------------------
 @router.patch(
     "/admin/{product_id}/status",
     response_model=ProductDetailOut
@@ -113,6 +137,9 @@ async def update_product_status(
         data.ativo
     )
 
+# -------------------------------------------------------------------------
+# Retorna os detalhes completos de um produto pelo ID
+# -------------------------------------------------------------------------
 @router.get("/{product_id}")
 async def get_product(
     product_id: int,
