@@ -18,13 +18,19 @@ from app.catalog.schemas import (
 )
 from app.orders.models import Reservation
 
-
+# -------------------------------------------------------------------------
+# Camada de serviço responsável pelas regras de negócio do catálogo
+# -------------------------------------------------------------------------
 class CatalogService:
     def __init__(self, db: AsyncSession):
         self.db = db
-    
+
+     # ---------------------------------------------------------------------
+    # Cria um novo produto com categorias e faixas de preço
+    # ---------------------------------------------------------------------
     async def create_product(self, data: ProductCreate):
 
+        # Verifica se já existe um produto com o mesmo slug
         slug_exists = await self.db.execute(
             select(Product).where(Product.slug == data.slug)
         )
@@ -35,6 +41,7 @@ class CatalogService:
                 detail="Já existe um produto com este slug"
             )
 
+        # Cria o registro principal do produto
         product = Product(
             name=data.name,
             slug=data.slug,
@@ -51,6 +58,7 @@ class CatalogService:
         # gera o ID antes de criar relacionamentos
         await self.db.flush()
 
+        # Vincula categorias ao produto
         for categoria_id in data.categories:
 
             categoria = await self.db.get(
@@ -71,6 +79,7 @@ class CatalogService:
                 )
             )
 
+        # Cadastra as faixas de preço
         for preco in data.pricing:
 
             self.db.add(
@@ -86,6 +95,10 @@ class CatalogService:
 
         return await self.get_product_by_id(product.id)
     
+    # ---------------------------------------------------------------------
+    # Atualiza informações de um produto existente
+    # Permite atualização parcial dos dados
+    # ---------------------------------------------------------------------
     async def update_product(
         self,
         product_id: int,
@@ -186,6 +199,9 @@ class CatalogService:
             product_id
         )
     
+     # ---------------------------------------------------------------------
+    # Ativa ou desativa um produto no catálogo
+    # ---------------------------------------------------------------------
     async def update_product_status(
         self,
         product_id: int,
@@ -211,6 +227,9 @@ class CatalogService:
         )
 
 
+    # ---------------------------------------------------------------------
+    # Lista produtos ativos com filtros opcionais
+    # ---------------------------------------------------------------------
     async def get_products(
         self,
         categoria_id=None,
@@ -218,6 +237,8 @@ class CatalogService:
         start_date=None,
         end_date=None
     ):
+        
+        # Consulta base retornando apenas produtos ativos
         query = (
             select(Product)
             .options(
@@ -248,6 +269,7 @@ class CatalogService:
         # filtro disponibilidade
         if start_date and end_date:
 
+            # Conta quantas reservas ativas existem para cada produto    
             reservas_subquery = (
                 select(
                     Reservation.product_id,
@@ -266,6 +288,7 @@ class CatalogService:
                 .subquery()
             )
 
+            # Retorna apenas produtos com unidades disponíveis
             query = (
                 query.outerjoin(
                     reservas_subquery,
@@ -284,6 +307,9 @@ class CatalogService:
 
         return result.scalars().unique().all()
 
+    # ---------------------------------------------------------------------
+    # Busca produto por ID com preços, imagens e categorias
+    # ---------------------------------------------------------------------
     async def get_product_by_id(self, product_id: int):
         result = await self.db.execute(
             select(Product)
@@ -309,6 +335,9 @@ class CatalogService:
         return product
 
 
+     # ---------------------------------------------------------------------
+    # Lista categorias ativas do catálogo
+    # ---------------------------------------------------------------------
     async def get_categories(self):
         result = await self.db.execute(
             select(Category).where(

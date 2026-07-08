@@ -27,7 +27,11 @@ __all__ = [
     "ProductImage",
 ]
 
-
+# -------------------------------------------------------------------------
+# Categoria de produtos
+# Permite estrutura hierárquica (categoria pai e categorias filhas)
+# Ex.: Brinquedos -> Desenvolvimento Sensorial
+# -------------------------------------------------------------------------
 class Category(Base):
     __tablename__ = "categories"
 
@@ -35,6 +39,7 @@ class Category(Base):
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     slug: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
+    # Relacionamento recursivo para categorias pai/filhas
     parent_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("categories.id", ondelete="SET NULL")
     )
@@ -53,7 +58,10 @@ class Category(Base):
         viewonly=True,
     )
 
-
+# -------------------------------------------------------------------------
+# Tabela associativa Produto x Categoria
+# Implementa relacionamento muitos-para-muitos
+# -------------------------------------------------------------------------
 class ProductCategory(Base):
     __tablename__ = "product_categories"
     __table_args__ = (
@@ -67,7 +75,9 @@ class ProductCategory(Base):
     category_id: Mapped[int] = mapped_column(
         ForeignKey("categories.id", ondelete="CASCADE"), nullable=False, index=True
     )
-
+# -------------------------------------------------------------------------
+# Produto disponível para locação
+# -------------------------------------------------------------------------
 
 class Product(Base):
     __tablename__ = "products"
@@ -79,8 +89,10 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
+     # Tipo do produto (rental, sale, etc.)
     type: Mapped[str] = mapped_column(String(20), default="rental", nullable=False)
     age_range: Mapped[Optional[str]] = mapped_column(String(50))
+    # Quantidade total disponível para locação
     total_units: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     rental_rules: Mapped[Optional[str]] = mapped_column(Text)
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
@@ -94,6 +106,7 @@ class Product(Base):
         onupdate=func.now(),
         nullable=False,
     )
+     # Exclusão lógica
     deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     categories: Mapped[List["Category"]] = relationship(
@@ -110,6 +123,10 @@ class Product(Base):
     )
 
 
+# -------------------------------------------------------------------------
+# Faixas de preço do produto por período de locação
+# Ex.: 7 dias = R$49,90 | 15 dias = R$89,90
+# -------------------------------------------------------------------------
 class ProductPricing(Base):
     __tablename__ = "product_pricing"
     __table_args__ = (
@@ -126,7 +143,9 @@ class ProductPricing(Base):
 
     product: Mapped["Product"] = relationship("Product", back_populates="pricing")
 
-
+# -------------------------------------------------------------------------
+# Imagens associadas ao produto
+# -------------------------------------------------------------------------
 class ProductImage(Base):
     __tablename__ = "product_images"
 
@@ -135,6 +154,7 @@ class ProductImage(Base):
         ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
     url: Mapped[str] = mapped_column(String(500), nullable=False)
+    # Ordem de exibição das imagens na interface
     display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
