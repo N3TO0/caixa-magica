@@ -1,7 +1,66 @@
+@import "./AdminShared.css";
+
 .admin-status-page {
   max-width: 700px;
   margin: 32px auto;
   padding: 0 16px;
+}
+
+.admin-order-summary-card {
+  margin-bottom: 24px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.admin-order-summary-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.admin-order-summary-card__header h2,
+.admin-order-summary-card__history h3 {
+  margin: 0 0 8px;
+  color: #0f3d7a;
+}
+
+.admin-order-summary-card__header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-order-summary-card__header strong {
+  color: #f97316;
+  font-size: 1.25rem;
+}
+
+.admin-order-summary-card__items {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-order-summary-card__items article {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.admin-order-summary-card__items span,
+.admin-order-summary-card__history span {
+  color: #64748b;
+}
+
+.admin-order-summary-card__history div {
+  display: grid;
+  gap: 8px;
 }
 
 .status-card {
@@ -93,4 +152,11 @@
 .btn-salvar:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .admin-order-summary-card__header,
+  .acoes {
+    flex-direction: column;
+  }
 }

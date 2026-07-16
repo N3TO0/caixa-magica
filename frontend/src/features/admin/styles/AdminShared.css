@@ -1,0 +1,120 @@
+.admin-section-tabs {
+  position: sticky;
+  top: 38px;
+  z-index: 16;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  width: fit-content;
+  max-width: min(100%, calc(100vw - 32px));
+  margin: 0 auto;
+  overflow-x: auto;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(246, 247, 251, 0.96);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(8px);
+  scrollbar-width: thin;
+}
+
+.admin-section-tab {
+  flex: 0 0 auto;
+  min-width: 140px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 700;
+  color: #d97706;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+}
+
+.admin-section-tab.active {
+  color: #fff;
+  background: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.admin-primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.admin-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.admin-summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
+  border: 1px solid rgba(251, 146, 60, 0.18);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.admin-summary-card span {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-summary-card strong {
+  color: #0f3d7a;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+@media (max-width: 1024px) {
+  .admin-section-tabs {
+    top: 38px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-section-tabs {
+    top: 98px;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.admin-feedback {
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-weight: 600;
+}
+
+.admin-feedback.success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.admin-feedback.error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
