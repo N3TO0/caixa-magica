@@ -85,6 +85,8 @@ class OrderService:
                 order_item = OrderItem(
                     order_id=order.id,
                     product_id=item.product_id,
+                    item_type="rental",
+                    quantity=1,
                     days=item.days,
                     price_snapshot=pricing.price,
                     start_date=item.start_date,
@@ -101,6 +103,78 @@ class OrderService:
                     status="active",
                 )
                 self.db.add(reservation)
+
+            history = OrderStatusHistory(
+                order_id=order.id,
+                previous_status=None,
+                new_status="pendente",
+                changed_by=None,
+            )
+            self.db.add(history)
+
+            await self.db.commit()
+            await self.db.refresh(order)
+            return order
+        except Exception:
+            await self.db.rollback()
+            raise
+
+    async def create_sale_order(self, data, user_id: int) -> Order:
+        try:
+            item_specs = []
+            for item in data.items:
+                product = await self.db.get(Product, item.product_id)
+                if product is None or not product.is_active or product.deleted_at is not None:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Produto {item.product_id} não encontrado",
+                    )
+
+                if product.type != "sale":
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Produto {product.name} não é um item de venda",
+                    )
+
+                if product.sale_price is None or product.sale_price <= 0:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Produto {product.name} não possui valor de venda configurado",
+                    )
+
+                item_specs.append((item, product))
+
+            total_amount = sum(
+                (product.sale_price * item.quantity for item, product in item_specs),
+                Decimal("0"),
+            )
+
+            order = Order(
+                user_id=user_id,
+                address_id=data.address_id,
+                delivery_type=data.delivery_type,
+                payment_type=data.payment_type,
+                status="pendente",
+                total_amount=total_amount,
+                notes=data.notes,
+                origin=data.origin,
+                expires_at=datetime.now(UTC) + timedelta(days=3),
+            )
+            self.db.add(order)
+            await self.db.flush()
+
+            for item, product in item_specs:
+                order_item = OrderItem(
+                    order_id=order.id,
+                    product_id=item.product_id,
+                    item_type="sale",
+                    quantity=item.quantity,
+                    days=None,
+                    price_snapshot=product.sale_price,
+                    start_date=None,
+                    end_date=None,
+                )
+                self.db.add(order_item)
 
             history = OrderStatusHistory(
                 order_id=order.id,
@@ -268,4 +342,17 @@ class OrderService:
             "disponivel": unidades_livres > 0,
             "unidades_livres": unidades_livres,
             "total_unidades": product.total_units,
+        }
+
+    async def get_admin_orders_summary(self) -> dict:
+        result = await self.db.execute(
+            select(Order).where(Order.deleted_at.is_(None))
+        )
+        orders = result.scalars().all()
+
+        return {
+            "total": len(orders),
+            "pending": len([order for order in orders if order.status == "pendente"]),
+            "confirmed": len([order for order in orders if order.status == "confirmado"]),
+            "finalized": len([order for order in orders if order.status == "finalizado"]),
         }
