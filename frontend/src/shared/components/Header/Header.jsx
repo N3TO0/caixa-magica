@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useCart } from "@/features/cart/hooks/useCart";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useFavorites } from "@/features/favorites/hooks/useFavorites";
 import {
   FaInstagram,
   FaWhatsapp,
@@ -9,6 +10,8 @@ import {
   FaShoppingCart,
   FaBars,
   FaSearch,
+  FaClipboardList,
+  FaHeart,
 } from "react-icons/fa";
 import logo from "@/assets/images/logo.png";
 import "./Header.css";
@@ -16,9 +19,11 @@ import "./Header.css";
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { cartItems } = useCart();
-  const { isAuthenticated, user } = useAuth();
+  const { favorites } = useFavorites();
+  const { isAuthenticated, logout, user } = useAuth();
   const [busca, setBusca] = useState("");
   const navigate = useNavigate();
+
   function pesquisar(e) {
     e.preventDefault();
     if (!busca.trim()) return;
@@ -79,6 +84,23 @@ export default function Header() {
             <span>Conta</span>
           </Link>
 
+          {isAuthenticated ? (
+            <Link to="/favoritos" className="icon-btn favoritos" aria-label="Favoritos">
+              <FaHeart />
+              {favorites?.length > 0 && (
+                <span className="cart-badge">{favorites.length}</span>
+              )}
+              <span>Favoritos</span>
+            </Link>
+          ) : null}
+
+          {isAuthenticated ? (
+            <Link to="/meus-pedidos" className="icon-btn pedidos" aria-label="Meus pedidos">
+              <FaClipboardList />
+              <span>Pedidos</span>
+            </Link>
+          ) : null}
+
           <Link to="/carrinho" className="icon-btn carrinho" aria-label="Carrinho">
             <FaShoppingCart />
             {cartItems?.length > 0 && (
@@ -104,8 +126,26 @@ export default function Header() {
         <NavLink to="/produtos" onClick={() => setMenuOpen(false)}>Produtos</NavLink>
         <NavLink to="/duvidas" onClick={() => setMenuOpen(false)}>Dúvidas</NavLink>
         <NavLink to="/contrato" onClick={() => setMenuOpen(false)}>Contrato</NavLink>
+        {isAuthenticated && (
+          <NavLink to="/minha-conta" onClick={() => setMenuOpen(false)}>Minha conta</NavLink>
+        )}
         {user?.role === "admin" && (
           <NavLink to="/admin/pedidos" onClick={() => setMenuOpen(false)}>Admin</NavLink>
+        )}
+        {isAuthenticated ? (
+          <button
+            type="button"
+            className="header-menu__logout"
+            onClick={() => {
+              logout();
+              setMenuOpen(false);
+              navigate("/login", { replace: true });
+            }}
+          >
+            Sair
+          </button>
+        ) : (
+          <NavLink to="/login" onClick={() => setMenuOpen(false)}>Entrar</NavLink>
         )}
       </nav>
     </header>

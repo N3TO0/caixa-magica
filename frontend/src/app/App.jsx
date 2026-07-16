@@ -1,4 +1,5 @@
 import { BrowserRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import Footer from "@/shared/components/Footer";
 import Header from "@/shared/components/Header";
 import AppProviders from "./AppProviders";
@@ -15,6 +16,17 @@ function App() {
         </main>
 
         <Footer />
+
+        <ToastContainer
+          autoClose={4000}
+          closeOnClick
+          draggable
+          newestOnTop
+          pauseOnFocusLoss
+          pauseOnHover
+          position="top-right"
+          theme="colored"
+        />
       </BrowserRouter>
     </AppProviders>
   );
