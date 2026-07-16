@@ -230,29 +230,7 @@ O frontend admin passou a mostrar resumos operacionais e precisava receber esses
 - `GET /api/v1/produtos/admin/resumo`
 - `GET /api/v1/usuarios/admin/usuarios/resumo`
 
-## 15. Remocao completa do fluxo de reset de senha
-
-### Alteracao
-Remocao total do fluxo de recuperacao e redefinicao de senha no frontend, backend e banco.
-
-### Objetivo
-Retirar uma funcionalidade que saiu do escopo final do projeto.
-
-### Porque
-O fluxo de reset de senha adicionava complexidade desnecessaria para a entrega estudantil.
-
-### Pontos alterados ou criados no back
-- `backend/app/core/security.py`
-- `backend/app/users/models.py`
-- `backend/app/users/schemas.py`
-- `backend/app/users/router.py`
-- `backend/app/users/service.py`
-- `backend/app/config.py`
-- `backend/requirements.txt`
-- `backend/.env.example`
-- `backend/alembic/versions/b1c2d3e4f5a6_remove_password_reset_tokens.py`
-
-## 16. Ajuste do ambiente Docker para desenvolvimento
+## 15. Ajuste do ambiente Docker para desenvolvimento
 
 ### Alteracao
 Configuracao do container do backend para hot reload mais confiavel em ambiente Docker local.
