@@ -1,4 +1,5 @@
 from decimal import Decimal
+from datetime import date
 from typing import List, Optional
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -9,7 +10,16 @@ class CategoryOut(BaseModel):
     name: str
     slug: str
     description: Optional[str] = None
+    parent_id: Optional[int] = None
     is_active: bool
+
+
+class CategoryCreate(BaseModel):
+    name: str
+    slug: str
+    description: Optional[str] = None
+    parent_id: Optional[int] = None
+    is_active: bool = True
 
 
 class ProductPricingOut(BaseModel):
@@ -29,6 +39,11 @@ class ProductImageOut(BaseModel):
     display_order: int
 
 
+class ProductImageCreate(BaseModel):
+    url: str
+    display_order: int = 0
+
+
 class ProductOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -39,6 +54,8 @@ class ProductOut(BaseModel):
     type: str
     age_range: Optional[str] = None
     total_units: int
+    available_units: int
+    sale_price: Optional[Decimal] = None
     rental_rules: Optional[str] = None
     is_featured: bool
     is_active: bool
@@ -59,11 +76,13 @@ class ProductCreate(BaseModel):
     type: str = "rental"
     age_range: Optional[str] = None
     total_units: int = Field(gt=0)
+    sale_price: Optional[Decimal] = Field(default=None, gt=0)
     rental_rules: Optional[str] = None
     is_featured: bool = False
 
     categories: list[int]
-    pricing: list[ProductPricingCreate]
+    pricing: list[ProductPricingCreate] = []
+    images: list[ProductImageCreate] = []
 
 
 class ProductUpdate(BaseModel):
@@ -73,11 +92,13 @@ class ProductUpdate(BaseModel):
     type: Optional[str] = None
     age_range: Optional[str] = None
     total_units: Optional[int] = Field(default=None, gt=0)
+    sale_price: Optional[Decimal] = Field(default=None, gt=0)
     rental_rules: Optional[str] = None
     is_featured: Optional[bool] = None
 
     categories: Optional[list[int]] = None
     pricing: Optional[list[ProductPricingCreate]] = None
+    images: Optional[list[ProductImageCreate]] = None
 
 
 class ProductStatusUpdate(BaseModel):
