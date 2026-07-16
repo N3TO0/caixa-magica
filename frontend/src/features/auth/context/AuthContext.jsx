@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { getMe, login as loginRequest, register as registerRequest } from "../api/authApi";
+import { notifyInfo, SESSION_EXPIRED_TOAST_ID } from "@/shared/utils/toastUtils";
 
 const AUTH_TOKEN_KEY = "auth_token";
 
@@ -40,6 +41,21 @@ export function AuthProvider({ children }) {
       isActive = false;
     };
   }, [token]);
+
+  useEffect(() => {
+    function handleUnauthorized() {
+      notifyInfo("Sua sessão expirou. Faça login novamente.", {
+        toastId: SESSION_EXPIRED_TOAST_ID,
+      });
+      logout();
+    }
+
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+
+    return () => {
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
+  }, []);
 
   async function login(credentials) {
     const response = await loginRequest(credentials);

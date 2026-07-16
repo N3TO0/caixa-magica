@@ -1,5 +1,22 @@
 import * as yup from "yup";
 
+function optionalTrimmedString(max, message) {
+  let validator = yup
+    .string()
+    .transform((value) => {
+      if (typeof value !== "string") return value;
+
+      const trimmed = value.trim();
+      return trimmed === "" ? "" : trimmed;
+    });
+
+  if (max) {
+    validator = validator.max(max, message);
+  }
+
+  return validator.notRequired();
+}
+
 export const schema = yup.object({
   customer_name: yup
     .string()
@@ -39,38 +56,39 @@ export const schema = yup.object({
   .required("Data de nascimento obrigatória")
   .max(new Date(), "Data inválida"),
 
+  profile_photo: yup
+    .string()
+    .nullable(),
+
   zip_code: yup
     .string()
-    .matches(
-      /^\d{5}-\d{3}$/,
-      "Use o formato 00000-000"
+    .test(
+      "zip-code-format",
+      "Use o formato 00000-000",
+      (value) => !value || /^\d{5}-\d{3}$/.test(value)
     )
-    .required("CEP obrigatório"),
+    .notRequired(),
 
-  street: yup
-    .string()
-    .max(120, "Máximo 120 caracteres")
-    .required("Rua obrigatória"),
+  street: optionalTrimmedString(120, "Máximo 120 caracteres"),
 
-  number: yup
-    .string()
-    .max(20, "Número inválido")
-    .required("Número obrigatório"),
+  number: optionalTrimmedString(20, "Número inválido"),
 
-  neighborhood: yup
-    .string()
-    .max(100)
-    .required("Bairro obrigatório"),
+  complement: optionalTrimmedString(100, "Máximo 100 caracteres"),
 
-  city: yup
-    .string()
-    .max(100)
-    .required("Cidade obrigatória"),
+  neighborhood: optionalTrimmedString(100, "Máximo 100 caracteres"),
+
+  city: optionalTrimmedString(100, "Máximo 100 caracteres"),
 
   state: yup
     .string()
+    .transform((value) => {
+      if (typeof value !== "string") return value;
+
+      const trimmed = value.trim().toUpperCase();
+      return trimmed === "" ? "" : trimmed;
+    })
     .max(2, "Use a sigla do estado")
-    .required("Estado obrigatório"),
+    .notRequired(),
 
   password: yup
     .string()

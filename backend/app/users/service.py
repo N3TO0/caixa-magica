@@ -1,17 +1,55 @@
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from math import ceil
 from sqlalchemy import select, func, update
 from sqlalchemy.orm import joinedload
+from app.config import settings
 from app.orders.models import Order
 from app.users.models import User, Address
-from app.core.security import hash_password, verify_password, create_access_token
-from app.core.exceptions import ConflictException, UnauthorizedException
+from app.core.security import (
+    create_access_token,
+    hash_password,
+    verify_password,
+)
+from app.core.exceptions import BadRequestException, ConflictException, NotFoundException, UnauthorizedException
 from sqlalchemy.orm import selectinload
 
 
 class UserService:
     def __init__(self, db: AsyncSession):
         self.db = db
+
+    async def _ensure_unique_user_fields(self, user_id: int | None, email: str | None, cpf: str | None):
+        if email:
+            email_result = await self.db.execute(
+                select(User).where(User.email == email, User.id != user_id)
+            )
+            if email_result.scalar_one_or_none():
+                raise ConflictException("Já existe um usuário cadastrado com este e-mail.")
+
+        if cpf:
+            cpf_result = await self.db.execute(
+                select(User).where(User.cpf == cpf, User.id != user_id)
+            )
+            if cpf_result.scalar_one_or_none():
+                raise ConflictException("Já existe um usuário cadastrado com este CPF.")
+
+    async def _get_user_with_addresses(self, user_id: int):
+        result = await self.db.execute(
+            select(User)
+            .execution_options(populate_existing=True)
+            .options(selectinload(User.addresses))
+            .where(User.id == user_id)
+        )
+        return result.scalar_one_or_none()
+
+    def create_user_token(self, user: User) -> str:
+        token_data = {
+            "sub": str(user.id),
+            "email": user.email,
+            "role": user.role
+        }
+        return create_access_token(data=token_data)
 
     async def register(self, data):
 
@@ -24,6 +62,9 @@ class UserService:
             # Retorna o erro 409 (Conflito) exigido na regra da atividade
             raise ConflictException("Já existe um usuário cadastrado com este e-mail.")
 
+        if data.cpf:
+            await self._ensure_unique_user_fields(None, None, data.cpf)
+
         # 2. Transformar a senha pura em hash usando a função do security.py
         hashed_password = hash_password(data.password)
 
@@ -34,6 +75,7 @@ class UserService:
             password_hash=hashed_password,
             phone=data.phone,
             cpf=data.cpf,
+            birthdate=data.birthdate,
             role="customer",  # Padrão para novos cadastros
             is_active=True
         )
@@ -44,13 +86,13 @@ class UserService:
         await self.db.refresh(new_user)
 
         # 5. Retornar o usuário criado com seus dados reais do banco
-        return new_user
+        return await self._get_user_with_addresses(new_user.id)
 
     async def authenticate(self, data):
         
 
         # 1. Buscar o usuário pelo e-mail enviado
-        query = select(User).where(User.email == data.email)
+        query = select(User).options(selectinload(User.addresses)).where(User.email == data.email)
         result = await self.db.execute(query)
         user = result.scalar_one_or_none()
 
@@ -62,25 +104,159 @@ class UserService:
         if not verify_password(data.password, user.password_hash):
             raise UnauthorizedException("E-mail ou senha incorretos.")
 
-        # 4. Se a senha estiver certa, prepara os dados que vão rodar dentro do Token (Payload)
-        token_data = {
-            "sub": str(user.id),
-            "email": user.email,
-            "role": user.role
+        # 4. Retorna o token e o usuário para as rotas montarem a resposta.
+        return self.create_user_token(user), user
+
+    async def update_profile(self, user_id: int, data):
+        user = await self._get_user_with_addresses(user_id)
+
+        if user is None:
+            raise NotFoundException("Usuário não encontrado.")
+
+        update_data = data.model_dump(exclude_unset=True)
+
+        email = update_data.get("email")
+        if email is not None and email != user.email:
+            await self._ensure_unique_user_fields(user_id, email, None)
+
+        cpf = update_data.get("cpf")
+        if cpf is not None and cpf != user.cpf:
+            await self._ensure_unique_user_fields(user_id, None, cpf)
+
+        address_fields = {
+            "zip_code",
+            "street",
+            "number",
+            "complement",
+            "neighborhood",
+            "city",
+            "state",
+        }
+        address_data = {
+            field: update_data.pop(field)
+            for field in list(update_data.keys())
+            if field in address_fields
         }
 
-        # 5. Gera o token JWT de verdade usando a função do security.py
-        access_token = create_access_token(data=token_data)
+        password = update_data.pop("password", None)
+        if password:
+            user.password_hash = hash_password(password)
 
-        # 6. Retorna o token no formato que o padrão OAuth2/FastAPI exige
-        return {
-            "access_token": access_token,
-            "token_type": "bearer"
-        }
+        if address_data and any(value is not None for value in address_data.values()):
+            address = user.default_address
+
+            if address is None:
+                address = Address(user_id=user_id, is_default=True)
+                self.db.add(address)
+
+            for field, value in address_data.items():
+                if value is None:
+                    continue
+                setattr(address, field, value)
+
+        for field, value in update_data.items():
+            if field in {"name", "email"} and value is None:
+                continue
+            setattr(user, field, value)
+
+        self.db.add(user)
+        await self.db.commit()
+        return await self._get_user_with_addresses(user_id)
+
 
     async def get_by_id(self, user_id: int):
-        # TODO: implementar busca por id
-        raise NotImplementedError
+        user = await self._get_user_with_addresses(user_id)
+
+        if user is None or user.deleted_at is not None:
+            raise NotFoundException("Usuário não encontrado.")
+
+        return user
+
+    async def create_admin_user(self, data):
+        await self._ensure_unique_user_fields(None, data.email, data.cpf)
+
+        new_user = User(
+            name=data.name,
+            email=data.email,
+            password_hash=hash_password(data.password),
+            phone=data.phone,
+            cpf=data.cpf,
+            birthdate=data.birthdate,
+            role=data.role,
+            is_active=data.is_active,
+        )
+
+        self.db.add(new_user)
+        await self.db.commit()
+        await self.db.refresh(new_user)
+
+        return await self._get_user_with_addresses(new_user.id)
+
+    async def update_admin_user(self, user_id: int, data):
+        user = await self._get_user_with_addresses(user_id)
+
+        if user is None or user.deleted_at is not None:
+            raise NotFoundException("Usuário não encontrado.")
+
+        update_data = data.model_dump(exclude_unset=True)
+
+        email = update_data.get("email")
+        if email is not None and email != user.email:
+            await self._ensure_unique_user_fields(user_id, email, None)
+
+        cpf = update_data.get("cpf")
+        if cpf is not None and cpf != user.cpf:
+            await self._ensure_unique_user_fields(user_id, None, cpf)
+
+        address_fields = {
+            "zip_code",
+            "street",
+            "number",
+            "complement",
+            "neighborhood",
+            "city",
+            "state",
+        }
+        address_data = {
+            field: update_data.pop(field)
+            for field in list(update_data.keys())
+            if field in address_fields
+        }
+
+        password = update_data.pop("password", None)
+        if password:
+            user.password_hash = hash_password(password)
+
+        if address_data and any(value is not None for value in address_data.values()):
+            address = user.default_address
+
+            if address is None:
+                address = Address(user_id=user_id, is_default=True)
+                self.db.add(address)
+
+            for field, value in address_data.items():
+                if value is None:
+                    continue
+                setattr(address, field, value)
+
+        for field, value in update_data.items():
+            setattr(user, field, value)
+
+        self.db.add(user)
+        await self.db.commit()
+        return await self._get_user_with_addresses(user_id)
+
+    async def delete_admin_user(self, user_id: int):
+        user = await self._get_user_with_addresses(user_id)
+
+        if user is None or user.deleted_at is not None:
+            raise NotFoundException("Usuário não encontrado.")
+
+        user.deleted_at = datetime.now(timezone.utc)
+        user.is_active = False
+
+        self.db.add(user)
+        await self.db.commit()
 
     async def get_user_orders(self, user_id: int, page: int = 1, limit: int = 10):
         
@@ -242,9 +418,8 @@ class UserService:
         if limit < 1: limit = 10
         offset = (page - 1) * limit
 
-        # 1. Conta o total de clientes ativos (role='customer' e não deletados)
+        # 1. Conta o total de usuários não deletados
         count_stmt = select(func.count(User.id)).where(
-            User.role == "customer",
             User.deleted_at.is_(None)
         )
         total_result = await self.db.execute(count_stmt)
@@ -255,7 +430,6 @@ class UserService:
             select(User, func.count(Order.id).label("total_orders"))
             .join(Order, Order.user_id == User.id, isouter=True)
             .where(
-                User.role == "customer",
                 User.deleted_at.is_(None)
             )
             .group_by(User.id)
@@ -274,6 +448,8 @@ class UserService:
                 name=user.name,
                 email=user.email,
                 phone=user.phone,
+                role=user.role,
+                is_active=user.is_active,
                 total_orders=total_orders,
                 created_at=user.created_at
             )
@@ -288,4 +464,19 @@ class UserService:
             "total_pages": total_pages,
             "page": page,
             "limit": limit
+        }
+
+    async def get_admin_users_summary(self):
+        result = await self.db.execute(
+            select(User).where(User.deleted_at.is_(None))
+        )
+        users = result.scalars().all()
+        customers = [user for user in users if user.role == "customer"]
+        admins = [user for user in users if user.role == "admin"]
+
+        return {
+            "total": len(users),
+            "customers": len(customers),
+            "admins": len(admins),
+            "inactive": len([user for user in users if not user.is_active]),
         }

@@ -5,11 +5,29 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import Hero from "@/shared/components/Hero";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { formatCpf, formatPhone, formatZipCode } from "@/shared/utils/formatUtils";
+import { notifyError, notifySuccess } from "@/shared/utils/toastUtils";
 import { updateProfile } from "../api/accountApi";
 
 import { schema } from "../schemas/accountSchema";
 
 import "../styles/EditAccountPage.css";
+
+function Field({ label, error, children }) {
+  return (
+    <div className="field">
+      <label>{label}</label>
+
+      {children}
+
+      {error?.message && (
+        <span className="error">
+          {error.message}
+        </span>
+      )}
+    </div>
+  );
+}
 
 export default function EditAccountPage() {
   const navigate = useNavigate();
@@ -25,6 +43,7 @@ export default function EditAccountPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -32,17 +51,19 @@ export default function EditAccountPage() {
 
     defaultValues: {
       customer_name: user?.customer_name || "",
-      customer_cpf: user?.customer_cpf || "",
+      customer_cpf: formatCpf(user?.customer_cpf),
       customer_email: user?.customer_email || "",
-      customer_phone: user?.customer_phone || "",
+      customer_phone: formatPhone(user?.customer_phone),
       customer_birthdate: user?.customer_birthdate || "",
+      profile_photo: user?.profile_photo || "",
 
-      zip_code: user?.zip_code || "",
+      zip_code: formatZipCode(user?.zip_code),
       street: user?.street || "",
       number: user?.number || "",
       neighborhood: user?.neighborhood || "",
       city: user?.city || "",
       state: user?.state || "",
+      complement: user?.complement || "",
 
       password: "",
       confirmPassword: "",
@@ -60,20 +81,25 @@ export default function EditAccountPage() {
         phone: formData.customer_phone,
         cpf: formData.customer_cpf,
         birthdate: formData.customer_birthdate || null,
-        ...(formData.password ? { password: formData.password } : {}),
+        profile_photo: preview || formData.profile_photo || null,
         zip_code: formData.zip_code,
         street: formData.street,
         number: formData.number,
         neighborhood: formData.neighborhood,
         city: formData.city,
         state: formData.state,
+        complement: formData.complement,
+        ...(formData.password ? { password: formData.password } : {}),
       };
 
       await updateProfile(payload);
       await refreshUser();
+      notifySuccess("Perfil atualizado com sucesso.");
       navigate("/minha-conta");
     } catch (err) {
-      setFeedback({ type: "error", message: err.message });
+      const message = err.message || "Não foi possível atualizar o perfil.";
+      setFeedback({ type: "error", message });
+      notifyError(message);
     } finally {
       setSaving(false);
     }
@@ -87,25 +113,14 @@ export default function EditAccountPage() {
     const reader = new FileReader();
 
     reader.onloadend = () => {
-      setPreview(reader.result);
+      const imageData = typeof reader.result === "string" ? reader.result : "";
+
+      setPreview(imageData);
+      setValue("profile_photo", imageData, { shouldValidate: true, shouldDirty: true });
     };
 
     reader.readAsDataURL(file);
   }
-
-  const Field = ({ label, error, children }) => (
-    <div className="field">
-      <label>{label}</label>
-
-      {children}
-
-      {error?.message && (
-        <span className="error">
-          {error.message}
-        </span>
-      )}
-    </div>
-  );
 
   return (
     <>
@@ -142,6 +157,22 @@ export default function EditAccountPage() {
                   accept="image/*"
                   onChange={handlePhotoChange}
                 />
+
+                <input type="hidden" {...register("profile_photo")} />
+
+                <Field
+                  label="URL da Foto"
+                  error={errors.profile_photo}
+                >
+                  <input
+                    placeholder="https://exemplo.com/foto.jpg"
+                    defaultValue={user?.profile_photo || ""}
+                    onChange={(event) => {
+                      setValue("profile_photo", event.target.value, { shouldValidate: true });
+                      setPreview(event.target.value);
+                    }}
+                  />
+                </Field>
               </div>
             </section>
 
@@ -166,9 +197,12 @@ export default function EditAccountPage() {
                   error={errors.customer_cpf}
                 >
                    <input
-    {...register("customer_cpf")}
-    placeholder="000.000.000-00"
-    maxLength={14}
+                    {...register("customer_cpf")}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                    onChange={(event) => {
+                      setValue("customer_cpf", formatCpf(event.target.value), { shouldValidate: true });
+                    }}
   />
 
                 </Field>
@@ -192,6 +226,9 @@ export default function EditAccountPage() {
     {...register("customer_phone")}
     placeholder="(11) 99999-9999"
     maxLength={15}
+    onChange={(event) => {
+      setValue("customer_phone", formatPhone(event.target.value), { shouldValidate: true });
+    }}
   />
                 </Field>
 
@@ -221,6 +258,9 @@ export default function EditAccountPage() {
     {...register("zip_code")}
     placeholder="00000-000"
     maxLength={9}
+    onChange={(event) => {
+      setValue("zip_code", formatZipCode(event.target.value), { shouldValidate: true });
+    }}
   />
                 </Field>
 
@@ -261,6 +301,16 @@ export default function EditAccountPage() {
                   <input
                     {...register("city")}
                     placeholder="Sua cidade"
+                  />
+                </Field>
+
+                <Field
+                  label="Complemento"
+                  error={errors.complement}
+                >
+                  <input
+                    {...register("complement")}
+                    placeholder="Apartamento, bloco, referência"
                   />
                 </Field>
 

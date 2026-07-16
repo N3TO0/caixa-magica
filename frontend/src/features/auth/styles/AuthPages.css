@@ -16,6 +16,35 @@
   font-size: 2rem;
 }
 
+.auth-eyebrow {
+  margin: 0 0 8px;
+  color: #0891b2;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-description {
+  margin: -8px 0 18px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.auth-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.auth-date-field {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  color: var(--blue-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .login-container input {
   width: 100%;
   min-height: 48px;
@@ -24,6 +53,10 @@
   border: 1px solid var(--line);
   border-radius: 999px;
   outline: 0;
+}
+
+.auth-date-field input {
+  margin: 0;
 }
 
 .login-container button {
@@ -57,4 +90,10 @@
   color: #d7263d;
   margin-top: 10px;
   font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .login-container {
+    padding: 24px;
+  }
 }
