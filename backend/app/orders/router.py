@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.responses import success_response
 from app.core.security import get_current_user
 from app.database import get_db
-from app.orders.schemas import OrderCreate, OrderStatusUpdate
+from app.orders.schemas import OrderCreate, OrderStatusUpdate, SaleOrderCreate
 from app.orders.service import OrderService
 from app.users.models import User
 
@@ -29,6 +29,24 @@ async def create_order(
             "total": float(order.total_amount),
         },
         message="Pedido criado com sucesso",
+    )
+
+
+@router.post("/compra")
+async def create_sale_order(
+    data: SaleOrderCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    service = OrderService(db)
+    order = await service.create_sale_order(data, user_id=current_user.id)
+    return success_response(
+        data={
+            "id": order.id,
+            "status": order.status,
+            "total": float(order.total_amount),
+        },
+        message="Pedido de compra criado com sucesso",
     )
 
 
@@ -68,10 +86,12 @@ async def get_order(
                 {
                     "id": item.id,
                     "product_name": item.product.name,
+                    "item_type": item.item_type,
+                    "quantity": item.quantity,
                     "days": item.days,
                     "price": float(item.price_snapshot),
-                    "start_date": item.start_date.isoformat(),
-                    "end_date": item.end_date.isoformat(),
+                    "start_date": item.start_date.isoformat() if item.start_date else None,
+                    "end_date": item.end_date.isoformat() if item.end_date else None,
                 }
                 for item in order.items
             ],
@@ -121,3 +141,17 @@ async def expire_orders(
         data=result,
         message=f"{result['cancelados']} pedido(s) expirado(s)",
     )
+
+
+@router.get("/admin/resumo")
+async def get_orders_summary(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Acesso negado"
+        )
+
+    service = OrderService(db)
+    return success_response(data=await service.get_admin_orders_summary())

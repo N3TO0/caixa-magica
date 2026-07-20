@@ -94,6 +94,7 @@ class Product(Base):
     age_range: Mapped[Optional[str]] = mapped_column(String(50))
     # Quantidade total disponível para locação
     total_units: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    sale_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(10, 2))
     rental_rules: Mapped[Optional[str]] = mapped_column(Text)
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

@@ -5,91 +5,16 @@ import { yupResolver } from "@hookform/resolvers/yup";
 
 import Hero from "@/shared/components/Hero";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { formatCpf, formatPhone, formatZipCode } from "@/shared/utils/formatUtils";
+import { notifyError, notifySuccess } from "@/shared/utils/toastUtils";
+import { updateProfile } from "../api/accountApi";
 
-import { schema } from "./schema";
-import { apiMockUpdateAccount } from "./apiMock";
+import { schema } from "../schemas/accountSchema";
 
 import "../styles/EditAccountPage.css";
 
-export default function EditAccountPage() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
-
-  const [preview, setPreview] = useState(
-    user?.profile_photo || ""
-  );
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-    mode: "onChange",
-
-    defaultValues: {
-      customer_name: user?.customer_name || "",
-      customer_cpf: user?.customer_cpf || "",
-      customer_email: user?.customer_email || "",
-      customer_phone: user?.customer_phone || "",
-      customer_birthdate: user?.customer_birthdate || "",
-
-      zip_code: user?.zip_code || "",
-      street: user?.street || "",
-      number: user?.number || "",
-      neighborhood: user?.neighborhood || "",
-      city: user?.city || "",
-      state: user?.state || "",
-
-      child_name: user?.child_name || "",
-      child_birthdate: user?.child_birthdate || "",
-
-      password: "",
-      confirmPassword: "",
-    },
-  });
-
-  async function onSubmit(data) {
-    try {
-      setLoading(true);
-      setSuccess("");
-
-      await apiMockUpdateAccount({
-        ...data,
-        profile_photo: preview,
-      });
-
-      setSuccess("Cadastro atualizado com sucesso!");
-
-      setTimeout(() => {
-        navigate("/minha-conta");
-      }, 1500);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao atualizar cadastro.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handlePhotoChange(event) {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
-
-    reader.readAsDataURL(file);
-  }
-
-  const Field = ({ label, error, children }) => (
+function Field({ label, error, children }) {
+  return (
     <div className="field">
       <label>{label}</label>
 
@@ -102,6 +27,100 @@ export default function EditAccountPage() {
       )}
     </div>
   );
+}
+
+export default function EditAccountPage() {
+  const navigate = useNavigate();
+  const { user, refreshUser } = useAuth();
+
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const [preview, setPreview] = useState(
+    user?.profile_photo || ""
+  );
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: "onChange",
+
+    defaultValues: {
+      customer_name: user?.customer_name || "",
+      customer_cpf: formatCpf(user?.customer_cpf),
+      customer_email: user?.customer_email || "",
+      customer_phone: formatPhone(user?.customer_phone),
+      customer_birthdate: user?.customer_birthdate || "",
+      profile_photo: user?.profile_photo || "",
+
+      zip_code: formatZipCode(user?.zip_code),
+      street: user?.street || "",
+      number: user?.number || "",
+      neighborhood: user?.neighborhood || "",
+      city: user?.city || "",
+      state: user?.state || "",
+      complement: user?.complement || "",
+
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  async function onSubmit(formData) {
+    try {
+      setSaving(true);
+      setFeedback(null);
+
+      const payload = {
+        name: formData.customer_name,
+        email: formData.customer_email,
+        phone: formData.customer_phone,
+        cpf: formData.customer_cpf,
+        birthdate: formData.customer_birthdate || null,
+        profile_photo: preview || formData.profile_photo || null,
+        zip_code: formData.zip_code,
+        street: formData.street,
+        number: formData.number,
+        neighborhood: formData.neighborhood,
+        city: formData.city,
+        state: formData.state,
+        complement: formData.complement,
+        ...(formData.password ? { password: formData.password } : {}),
+      };
+
+      await updateProfile(payload);
+      await refreshUser();
+      notifySuccess("Perfil atualizado com sucesso.");
+      navigate("/minha-conta");
+    } catch (err) {
+      const message = err.message || "Não foi possível atualizar o perfil.";
+      setFeedback({ type: "error", message });
+      notifyError(message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handlePhotoChange(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const imageData = typeof reader.result === "string" ? reader.result : "";
+
+      setPreview(imageData);
+      setValue("profile_photo", imageData, { shouldValidate: true, shouldDirty: true });
+    };
+
+    reader.readAsDataURL(file);
+  }
 
   return (
     <>
@@ -138,6 +157,22 @@ export default function EditAccountPage() {
                   accept="image/*"
                   onChange={handlePhotoChange}
                 />
+
+                <input type="hidden" {...register("profile_photo")} />
+
+                <Field
+                  label="URL da Foto"
+                  error={errors.profile_photo}
+                >
+                  <input
+                    placeholder="https://exemplo.com/foto.jpg"
+                    defaultValue={user?.profile_photo || ""}
+                    onChange={(event) => {
+                      setValue("profile_photo", event.target.value, { shouldValidate: true });
+                      setPreview(event.target.value);
+                    }}
+                  />
+                </Field>
               </div>
             </section>
 
@@ -162,9 +197,12 @@ export default function EditAccountPage() {
                   error={errors.customer_cpf}
                 >
                    <input
-    {...register("customer_cpf")}
-    placeholder="000.000.000-00"
-    maxLength={14}
+                    {...register("customer_cpf")}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                    onChange={(event) => {
+                      setValue("customer_cpf", formatCpf(event.target.value), { shouldValidate: true });
+                    }}
   />
 
                 </Field>
@@ -188,6 +226,9 @@ export default function EditAccountPage() {
     {...register("customer_phone")}
     placeholder="(11) 99999-9999"
     maxLength={15}
+    onChange={(event) => {
+      setValue("customer_phone", formatPhone(event.target.value), { shouldValidate: true });
+    }}
   />
                 </Field>
 
@@ -198,34 +239,6 @@ export default function EditAccountPage() {
                   <input
                     type="date"
                     {...register("customer_birthdate")}
-                  />
-                </Field>
-
-              </div>
-            </section>
-
-            <section className="form-section">
-              <h2>Dados da Criança (Opcional)</h2>
-
-              <div className="grid">
-
-                <Field
-                  label="Nome da Criança"
-                  error={errors.child_name}
-                >
-                  <input
-                    {...register("child_name")}
-                    placeholder="Nome da criança"
-                  />
-                </Field>
-
-                <Field
-                  label="Data de Nascimento"
-                  error={errors.child_birthdate}
-                >
-                  <input
-                    type="date"
-                    {...register("child_birthdate")}
                   />
                 </Field>
 
@@ -245,6 +258,9 @@ export default function EditAccountPage() {
     {...register("zip_code")}
     placeholder="00000-000"
     maxLength={9}
+    onChange={(event) => {
+      setValue("zip_code", formatZipCode(event.target.value), { shouldValidate: true });
+    }}
   />
                 </Field>
 
@@ -285,6 +301,16 @@ export default function EditAccountPage() {
                   <input
                     {...register("city")}
                     placeholder="Sua cidade"
+                  />
+                </Field>
+
+                <Field
+                  label="Complemento"
+                  error={errors.complement}
+                >
+                  <input
+                    {...register("complement")}
+                    placeholder="Apartamento, bloco, referência"
                   />
                 </Field>
 
@@ -332,9 +358,9 @@ export default function EditAccountPage() {
               </div>
             </section>
 
-            {success && (
-              <div className="success-message">
-                {success}
+            {feedback && (
+              <div className={`feedback ${feedback.type}`}>
+                {feedback.message}
               </div>
             )}
 
@@ -343,7 +369,6 @@ export default function EditAccountPage() {
     type="button"
     className="cancel-button"
     onClick={() => navigate("/minha-conta")}
-    disabled={loading}
   >
     Cancelar
   </button>
@@ -351,11 +376,9 @@ export default function EditAccountPage() {
   <button
     type="submit"
     className="save-button"
-    disabled={loading}
+    disabled={saving}
   >
-    {loading
-      ? "Salvando alterações..."
-      : "Salvar Alterações"}
+    {saving ? "Salvando..." : "Salvar Alterações"}
   </button>
 </div>
           </form>

@@ -20,8 +20,8 @@ function Footer() {
           <h4>CAIXA MÁGICA</h4>
           <Link to="/quem-somos">Quem somos</Link>
           <Link to="/produtos">Produtos</Link>
-          <Link to="/higienizacao">Higienização dos itens</Link>
-          <Link to="/privacidade">Política de privacidade e LGPD</Link>
+          <Link to="/duvidas">Higienização dos itens</Link>
+          <Link to="/contrato">Política de privacidade e LGPD</Link>
         </div>
 
         <div className="footer-column">

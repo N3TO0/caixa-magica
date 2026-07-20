@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import "../styles/LoginPage.css";
+import { notifyError, notifySuccess } from "@/shared/utils/toastUtils";
+import "../styles/AuthPages.css";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,9 +25,12 @@ export default function LoginPage() {
     try {
       setLoading(true);
       await login({ email, password: senha });
+      notifySuccess("Login realizado com sucesso.");
       navigate("/");
     } catch (err) {
-      setErro(err.message || "Email ou senha inválidos");
+      const message = err.message || "Email ou senha inválidos";
+      setErro(message);
+      notifyError(message);
     } finally {
       setLoading(false);
     }
@@ -55,12 +59,6 @@ export default function LoginPage() {
 
         <button type="submit" disabled={loading}>{loading ? "Entrando..." : "Entrar"}</button>
       </form>
-
-      <p className="auth-helper">
-        <Link to="/recuperacao-senha">
-          Esqueceu sua senha?
-        </Link>
-      </p>
 
       <p className="auth-helper">Ainda não tem conta? <Link to="/cadastro">Cadastre-se</Link></p>
     </div>

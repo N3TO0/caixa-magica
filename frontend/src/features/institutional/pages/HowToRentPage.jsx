@@ -1,4 +1,5 @@
 import Hero from "@/shared/components/Hero";
+import { Link } from "react-router-dom";
 import "../styles/HowToRentPage.css";
 import {
   FaUserPlus,
@@ -80,7 +81,7 @@ export default function HowToRentPage() {
           
   <div className="etapa-card botao-card">
     <h3>Pronto para começar?</h3>
-    <button className="btn-alugar">Quero alugar</button>
+    <Link to="/produtos" className="btn-alugar">Quero alugar</Link>
   </div>
 </div>
       </main>

@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 from app.catalog.router import router as catalog_router
 from app.config import settings
@@ -14,6 +16,9 @@ import app.orders.models  # noqa: F401
 
 app = FastAPI(title="Caixa Mágica API", version="0.1.0")
 
+uploads_dir = Path(__file__).resolve().parent.parent / "uploads"
+uploads_dir.mkdir(parents=True, exist_ok=True)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -26,6 +31,7 @@ app.include_router(catalog_router, prefix="/api/v1")
 app.include_router(orders_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 
 @app.get("/health", tags=["Health"])

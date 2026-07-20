@@ -6,7 +6,21 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.core.security import get_current_user 
 
 from app.database import get_db  
-from app.users.schemas import UserCreate, AdminUserPaginatedResponse, UserOut, LoginRequest, TokenOut, AddressCreate, AddressOut, OrderHistoryPaginatedResponse, AddressOut, AdminOrderPaginatedResponse
+from app.users.schemas import (
+    AddressCreate,
+    AddressOut,
+    AdminUserCreate,
+    AdminOrderPaginatedResponse,
+    AdminUserPaginatedResponse,
+    AdminUserUpdate,
+    AuthOut,
+    LoginRequest,
+    OrderHistoryPaginatedResponse,
+    TokenOut,
+    UserCreate,
+    UserOut,
+    UserUpdate,
+)
 from app.users.service import UserService
 # --------------------------------------------------------------------- import para utilizar o botão de autenticação do swagger:
 
@@ -17,8 +31,8 @@ users_router = APIRouter(prefix="/usuarios", tags=["Usuários"])
 
 @auth_router.post(
     "/register", 
-    response_model=UserOut, 
-    status_code=status.HTTP_201_CREATED
+    response_model=AuthOut, 
+    status_code=status.HTTP_200_OK
 )
 async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
     # Instancia o serviço passando a sessão do banco de dados
@@ -26,8 +40,13 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
     
     # Executa a lógica de cadastro e guarda o usuário retornado
     new_user = await user_service.register(data)
+    access_token = user_service.create_user_token(new_user)
     
-    return new_user
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": new_user
+    }
 
 @auth_router.post(
     "/admin/register-admin", 
@@ -48,16 +67,19 @@ async def register_admin_master(data: UserCreate, db: AsyncSession = Depends(get
 
 @auth_router.post(
     "/login", 
-    response_model=TokenOut, 
+    response_model=AuthOut, 
     status_code=status.HTTP_200_OK
 )
 async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):  # <- Mudou aqui
     user_service = UserService(db)
     
-    token_response = await user_service.authenticate(data)
+    access_token, user = await user_service.authenticate(data)
     
-    return token_response
-
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": user
+    }
 @auth_router.post(
     "/login-swagger", 
     response_model=TokenOut, 
@@ -75,13 +97,26 @@ async def login_swagger(
         password=form_data.password
     )
     
-    token_response = await user_service.authenticate(data)
+    access_token, _user = await user_service.authenticate(data)
     
-    return token_response
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
 @users_router.get("/me", status_code=status.HTTP_200_OK, response_model=UserOut)
 async def get_me(current_user = Depends(get_current_user)):
     return current_user
+
+
+@users_router.patch("/me", status_code=status.HTTP_200_OK, response_model=UserOut)
+async def update_me(
+    data: UserUpdate,
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    user_service = UserService(db)
+    return await user_service.update_profile(current_user.id, data)
 
 
 @users_router.get(
@@ -222,3 +257,117 @@ async def get_all_customers_admin(
         limit=result["limit"],
         message="ok"
     )
+
+
+@users_router.get(
+    "/admin/usuarios/resumo",
+    status_code=status.HTTP_200_OK
+)
+async def get_users_summary_admin(
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    user_obj = current_user[0] if isinstance(current_user, tuple) else current_user
+
+    if user_obj.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado. Esta rota é exclusiva para administradores."
+        )
+
+    user_service = UserService(db)
+    return await user_service.get_admin_users_summary()
+
+
+@users_router.get(
+    "/admin/usuarios/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=UserOut
+)
+async def get_user_detail_admin(
+    user_id: int,
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    user_obj = current_user[0] if isinstance(current_user, tuple) else current_user
+
+    if user_obj.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado. Esta rota é exclusiva para administradores."
+        )
+
+    user_service = UserService(db)
+    return await user_service.get_by_id(user_id)
+
+
+@users_router.post(
+    "/admin/usuarios",
+    status_code=status.HTTP_201_CREATED,
+    response_model=UserOut
+)
+async def create_user_admin(
+    data: AdminUserCreate,
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    user_obj = current_user[0] if isinstance(current_user, tuple) else current_user
+
+    if user_obj.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado. Esta rota é exclusiva para administradores."
+        )
+
+    user_service = UserService(db)
+    return await user_service.create_admin_user(data)
+
+
+@users_router.put(
+    "/admin/usuarios/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=UserOut
+)
+async def update_user_admin(
+    user_id: int,
+    data: AdminUserUpdate,
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    user_obj = current_user[0] if isinstance(current_user, tuple) else current_user
+
+    if user_obj.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado. Esta rota é exclusiva para administradores."
+        )
+
+    user_service = UserService(db)
+    return await user_service.update_admin_user(user_id, data)
+
+
+@users_router.delete(
+    "/admin/usuarios/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def delete_user_admin(
+    user_id: int,
+    current_user = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    user_obj = current_user[0] if isinstance(current_user, tuple) else current_user
+
+    if user_obj.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado. Esta rota é exclusiva para administradores."
+        )
+
+    if user_obj.id == user_id:
+        raise HTTPException(
+            status_code=400,
+            detail="O administrador não pode excluir a própria conta."
+        )
+
+    user_service = UserService(db)
+    await user_service.delete_admin_user(user_id)

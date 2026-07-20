@@ -77,6 +77,41 @@
   text-align: center;
 }
 
+.home-age-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.home-age-shortcut-card {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid var(--line);
+  box-shadow: var(--soft-shadow);
+  text-decoration: none;
+  text-align: left;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.home-age-shortcut-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 28px rgba(18, 38, 63, 0.12);
+}
+
+.home-age-shortcut-card strong {
+  color: var(--blue-dark);
+  font-family: "Poppins", sans-serif;
+}
+
+.home-age-shortcut-card span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .apresentacao-vantagens {
   margin-top: 28px;
   padding: 48px 0;
@@ -155,6 +190,7 @@
     grid-template-columns: 1fr;
   }
 
+  .home-age-shortcuts,
   .vantagens {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -165,6 +201,7 @@
     padding: 24px;
   }
 
+  .home-age-shortcuts,
   .vantagens {
     grid-template-columns: 1fr;
   }

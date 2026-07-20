@@ -2,8 +2,8 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
@@ -27,8 +27,39 @@
   background: linear-gradient(135deg, rgba(223, 248, 255, 0.55), rgba(255, 243, 216, 0.65));
 }
 
+.produto-card__stock {
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.produto-card__stock--success {
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.produto-card__stock--warning {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.produto-card__stock--danger {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.produto-card__category {
+  color: #0891b2;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .produto-card h3 {
-  margin: 0 0 8px;
+  margin: 8px 0 8px;
   color: var(--blue-dark);
   font-family: "Poppins", sans-serif;
   font-size: 1.12rem;
@@ -39,6 +70,17 @@
   color: var(--muted);
   font-size: 0.92rem;
   line-height: 1.45;
+}
+
+.produto-card__age-range {
+  display: inline-flex;
+  margin-top: 12px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .btn-carrinho {
@@ -55,7 +97,8 @@
 
 .bloco-prazo {
   margin: 12px 0;
-  text-align: center;
+  text-align: left;
+  width: 100%;
 }
 
 .titulo-prazo {
@@ -108,5 +151,12 @@
 .preco span {
   color: var(--muted);
   font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.produto-disponibilidade {
+  margin: 0 0 14px;
+  color: var(--blue-dark);
+  font-size: 0.92rem;
   font-weight: 700;
 }

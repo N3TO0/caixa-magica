@@ -46,11 +46,29 @@
   font-weight: 800;
 }
 
+.produto-disponibilidade-detalhe {
+  margin: -6px 0 18px;
+  color: var(--blue-dark);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.produto-locacao-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.produto-locacao-config {
+  display: grid;
+  gap: 14px;
+}
+
 .rental-field {
   display: grid;
   gap: 8px;
-  max-width: 260px;
-  margin-bottom: 18px;
   color: var(--blue-dark);
   font-weight: 800;
 }
@@ -68,7 +86,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
 }
 
 .planos button {
@@ -86,30 +103,69 @@
   border-color: var(--orange);
 }
 
+.produto-resumo-locacao {
+  padding: 20px;
+  border: 1px solid rgba(251, 146, 60, 0.2);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+}
+
+.produto-resumo-locacao__eyebrow {
+  margin: 0 0 14px;
+  color: var(--orange-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.produto-resumo-locacao__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.produto-resumo-locacao__grid--single {
+  grid-template-columns: 1fr;
+}
+
+.produto-resumo-locacao__grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.produto-resumo-locacao__grid span,
+.produto-resumo-locacao__price span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.produto-resumo-locacao__grid strong {
+  color: var(--blue-dark);
+}
+
+.produto-resumo-locacao__price {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(15, 61, 122, 0.12);
+}
+
 .info h2 {
-  margin: 0 0 18px;
+  margin: 0;
   color: var(--green-dark);
   font-family: "Poppins", sans-serif;
   font-size: 2rem;
-}
-
-.rental-summary {
-  display: inline-grid;
-  gap: 2px;
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  border-radius: 18px;
-  background: var(--orange-soft);
-}
-
-.rental-summary span {
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 800;
-}
-
-.rental-summary strong {
-  color: var(--orange-dark);
 }
 
 .produto-form-error {
@@ -129,27 +185,48 @@
   padding: 12px 20px;
   border: 0;
   border-radius: 999px;
-  background: var(--orange);
   color: var(--white);
   font-weight: 800;
 }
 
-.acoes button:nth-child(2) {
-  background: var(--pink);
+.acoes__primaria {
+  background: var(--orange);
 }
 
-.acoes button:nth-child(3) {
+.acoes__secundaria {
   background: var(--green-dark);
 }
 
-.produto-nao-encontrado {
-  width: var(--container);
-  margin: 40px auto;
-  text-align: center;
+.acoes__terciaria {
+  background: rgba(236, 72, 153, 0.82);
+}
+
+.acoes__terciaria--active {
+  background: rgba(190, 24, 93, 0.86);
+  box-shadow: 0 0 0 3px rgba(190, 24, 93, 0.18);
+}
+
+.produto-apoio {
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.produto-resumo-locacao--sale {
+  margin-bottom: 18px;
 }
 
 @media (max-width: 840px) {
-  .produto-topo {
+  .produto-topo,
+  .produto-locacao-layout,
+  .produto-resumo-locacao__grid {
     grid-template-columns: 1fr;
+  }
+
+  .produto-resumo-locacao__price {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

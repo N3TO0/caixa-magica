@@ -1,73 +1,56 @@
-import { apiClient } from "@/shared/services/apiClient";
-import { USE_MOCKS } from "@/shared/services/apiConfig";
-import { getMeMock, loginMock, registerMock } from "./authMock";
+import { apiClient } from "@/shared/api/apiClient";
+import { formatCpf, formatPhone } from "@/shared/utils/formatUtils";
 
 function normalizeUser(user) {
   return {
     id: user.id,
     customer_name: user.name,
     customer_email: user.email,
-    customer_phone: user.phone,
-    customer_cpf: user.cpf ?? null,
+    customer_phone: formatPhone(user.phone),
+    customer_cpf: formatCpf(user.cpf),
     role: user.role,
-    customer_birthdate: null,
-    customer_gender: null,
-    baby_name: null,
-    baby_birthdate: null,
-    zip_code: null,
-    street: null,
-    number: null,
-    neighborhood: null,
-    city: null,
-    state: null,
-    complement: null,
+    customer_birthdate: user.birthdate ?? null,
+    profile_photo: user.profile_photo ?? null,
+    zip_code: user.zip_code ?? null,
+    street: user.street ?? null,
+    number: user.number ?? null,
+    complement: user.complement ?? null,
+    neighborhood: user.neighborhood ?? null,
+    city: user.city ?? null,
+    state: user.state ?? null,
   };
 }
 
 export async function login(payload) {
-  if (USE_MOCKS.auth) return loginMock(payload);
-
-  const tokenData = await apiClient("/auth/login", {
+  const authData = await apiClient("/auth/login", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 
-  const userData = await apiClient("/usuarios/me", {
-    headers: { Authorization: `Bearer ${tokenData.access_token}` },
-  });
-
   return {
-    access_token: tokenData.access_token,
-    token_type: "bearer",
-    user: normalizeUser(userData),
+    access_token: authData.access_token,
+    token_type: authData.token_type,
+    user: normalizeUser(authData.user),
   };
 }
 
 export async function register(payload) {
-  if (USE_MOCKS.auth) return registerMock(payload);
-
-  const userData = await apiClient("/auth/register", {
+  const authData = await apiClient("/auth/register", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 
-  const tokenData = await apiClient("/auth/login", {
-    method: "POST",
-    body: JSON.stringify({ email: payload.email, password: payload.password }),
-  });
-
   return {
-    access_token: tokenData.access_token,
-    token_type: "bearer",
-    user: normalizeUser(userData),
+    access_token: authData.access_token,
+    token_type: authData.token_type,
+    user: normalizeUser(authData.user),
   };
 }
 
 export async function getMe(token) {
-  if (USE_MOCKS.users) return getMeMock();
-
   const userData = await apiClient("/usuarios/me", {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
+
   return normalizeUser(userData);
 }

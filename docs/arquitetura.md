@@ -179,6 +179,7 @@ pendente → confirmado → em_uso → devolvido → finalizado
 | GET | `/api/v1/produtos` | Lista produtos ativos com preços e imagens |
 | GET | `/api/v1/produtos/{id}` | Detalhe do produto com 404 para inexistente |
 | GET | `/api/v1/produtos/categorias` | Lista categorias ativas |
+| POST | `/api/v1/produtos/categorias/admin` | Cria categoria (admin) |
 
 ### Usuários e Autenticação
 

@@ -1,3 +1,5 @@
+@import "./AdminShared.css";
+
 .pedidos-page {
   width: 100%;
   padding: 24px 0;
@@ -18,7 +20,10 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  
+}
+
+.toolbar-action {
+  flex-shrink: 0;
 }
 
 .search-box {
@@ -69,6 +74,10 @@
 .toolbar select option {
   background: #fff;
   color: #334155;
+}
+
+.toolbar .search-box {
+  min-width: 260px;
 }
 
 
@@ -131,6 +140,41 @@ tbody td {
   opacity: 0.9;
 }
 
+.admin-order-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.admin-order-status--info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.admin-order-status--warning {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.admin-order-status--success {
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.admin-order-status--danger {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.admin-order-status--neutral {
+  background: #e2e8f0;
+  color: #334155;
+}
+
 .loading {
   text-align: center;
   padding: 24px;
@@ -183,6 +227,8 @@ tbody td {
     align-items: stretch;
   }
 
+  .toolbar-action,
+  .toolbar .search-box,
   .toolbar select {
     width: 100%;
   }

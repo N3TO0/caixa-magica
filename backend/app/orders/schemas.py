@@ -12,6 +12,11 @@ class OrderItemCreate(BaseModel):
     end_date: date
 
 
+class SaleOrderItemCreate(BaseModel):
+    product_id: int
+    quantity: int = Field(default=1, ge=1)
+
+
 class OrderCreate(BaseModel):
     address_id: Optional[int] = None
     delivery_type: Literal["delivery", "pickup"]
@@ -23,15 +28,26 @@ class OrderCreate(BaseModel):
     items: List[OrderItemCreate] = Field(min_length=1)
 
 
+class SaleOrderCreate(BaseModel):
+    address_id: Optional[int] = None
+    delivery_type: Literal["delivery", "pickup"]
+    payment_type: Literal["on_delivery_cash", "on_delivery_card", "pending"]
+    notes: Optional[str] = None
+    origin: str = "site"
+    items: List[SaleOrderItemCreate] = Field(min_length=1)
+
+
 class OrderItemOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     product_id: int
-    days: int
+    item_type: str
+    quantity: int
+    days: Optional[int] = None
     price_snapshot: Decimal
-    start_date: date
-    end_date: date
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
 
 class OrderOut(BaseModel):

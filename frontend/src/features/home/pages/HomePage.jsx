@@ -11,6 +11,13 @@ import {
 } from "react-icons/fa";
 
 export default function HomePage() {
+  const ageShortcuts = [
+    "0 - 6 meses",
+    "6 - 12 meses",
+    "1 - 2 anos",
+    "2 - 4 anos",
+  ];
+
   return (
     <main className="home">
       <section className="home-hero">
@@ -38,6 +45,15 @@ export default function HomePage() {
       <section className="apresentacao">
         <h2 className="section-title">Confira os produtos em destaque</h2>
         <p className="section-lead">Escolha brinquedos e acessórios adequados para o momento da sua criança.</p>
+
+        <div className="home-age-shortcuts">
+          {ageShortcuts.map((label) => (
+            <Link key={label} to="/produtos" className="home-age-shortcut-card">
+              <strong>{label}</strong>
+              <span>Ver brinquedos para essa fase</span>
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className="apresentacao-vantagens">

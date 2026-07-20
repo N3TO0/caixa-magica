@@ -45,6 +45,7 @@ from app.database import get_db
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 # Define onde o FastAPI deve buscar o token JWT
 # Sempre que uma rota usar Depends(get_current_user),
@@ -89,7 +90,9 @@ async def get_current_user(
     # Busca o usuário diretamente usando a sessão
     # recebida pelo sistema de dependências do FastAPI
     result = await db.execute(
-        select(User).where(
+        select(User)
+        .options(selectinload(User.addresses))
+        .where(
             User.id == int(user_id)
         )
     )
