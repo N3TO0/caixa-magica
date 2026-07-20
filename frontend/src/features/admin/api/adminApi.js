@@ -69,7 +69,7 @@ export function getAdminProductsSummary() {
 }
 
 export function createAdminCategory(payload) {
-  return apiClient("/produtos/categorias/admin", {
+  return apiClient("/produtos/admin/categorias", {
     method: "POST",
     body: JSON.stringify(payload),
   });

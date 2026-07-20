@@ -202,7 +202,7 @@ pendente → confirmado → em_uso → devolvido → finalizado
 | GET | `/api/v1/produtos/categorias` | Lista categorias |
 | GET | `/api/v1/produtos/admin` | Lista produtos no admin |
 | GET | `/api/v1/produtos/admin/resumo` | Resumo de produtos no admin |
-| POST | `/api/v1/produtos/categorias/admin` | Cria categoria (admin) |
+| POST | `/api/v1/produtos/admin/categorias` | Cria categoria (admin) |
 | POST | `/api/v1/produtos/admin` | Cria produto (admin) |
 | PUT | `/api/v1/produtos/admin/{id}` | Atualiza produto (admin) |
 | PATCH | `/api/v1/produtos/admin/{id}/status` | Ativa/desativa produto (admin) |
