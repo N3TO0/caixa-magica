@@ -71,7 +71,7 @@ async def list_categories(
 # Acesso restrito para usuários administradores
 # -------------------------------------------------------------------------
 @router.post(
-    "/categorias/admin",
+    "/admin/categorias",
     response_model=CategoryOut,
     status_code=201
 )
